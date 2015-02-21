@@ -21,7 +21,7 @@ public class AccessToken {
         return mAccessToken;
     }
 
-    abstract public static class TokenExpiredListener {
-        abstract public void onTokenExpired();
+    public interface TokenExpiredListener {
+        public void onTokenExpired();
     }
 }
