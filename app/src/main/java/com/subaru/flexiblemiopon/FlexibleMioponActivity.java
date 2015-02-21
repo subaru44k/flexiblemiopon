@@ -10,12 +10,14 @@ import android.os.Looper;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.widget.CompoundButton;
+import android.widget.Switch;
 import android.widget.TextView;
 
 import com.subaru.flexiblemiopon.data.AccessToken;
 
 
-public class FlexibleMioponActivity extends ActionBarActivity implements FlexibleMioponService.OnDebugOutputListener, FlexibleMioponService.OnAuthenticationListener{
+public class FlexibleMioponActivity extends ActionBarActivity implements FlexibleMioponService.OnDebugOutputListener, FlexibleMioponService.OnAuthenticationListener, FlexibleMioponService.OnSwitchListener{
 
     private final String LOG_TAG = "FlexibleMioponActivity";
     private static final String REDIRECT_URI_BASE = "https://api.iijmio.jp/mobile/d/v1/authorization/?response_type=token&client_id=lNuh3hfMUS52SCTHv4O&redirect_uri=com.subaru.flexiblemiopon://callback";
@@ -27,6 +29,7 @@ public class FlexibleMioponActivity extends ActionBarActivity implements Flexibl
         public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
             mService = ((FlexibleMioponService.LocalBinder) iBinder).getService();
             mActivity.setListener();
+            mService.checkAuthentication();
         }
 
         @Override
@@ -50,7 +53,24 @@ public class FlexibleMioponActivity extends ActionBarActivity implements Flexibl
 
         Intent serviceIntent = new Intent(FlexibleMioponActivity.this, FlexibleMioponService.class);
         bindService(serviceIntent, mConnection, Context.BIND_AUTO_CREATE);
-        redirectForAuthentication();
+
+        Switch switchView = (Switch) findViewById(R.id.switch1);
+        switchView.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                if (b) {
+                    mService.retrieveCouponInfo();
+                }
+            }
+        });
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (mService != null) {
+            mService.retrieveCouponInfo();
+        }
     }
 
     public void redirectForAuthentication() {
@@ -73,12 +93,17 @@ public class FlexibleMioponActivity extends ActionBarActivity implements Flexibl
         Log.d(LOG_TAG, "onNewIntent");
         super.onNewIntent(intent);
 
+        // if this activity is launched again, it should not be handled here
+        if (!Intent.ACTION_VIEW.equals(intent.getAction())) {
+            return;
+        }
+
         mService.setOnDebugOutputListener(this);
         mService.getTokenFromAuth(intent);
     }
 
     private void setDebugText(final String text) {
-        new android.os.Handler(Looper.getMainLooper()).post(new Runnable() {
+        runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 TextView debugView = (TextView) findViewById(R.id.debugText);
@@ -100,5 +125,25 @@ public class FlexibleMioponActivity extends ActionBarActivity implements Flexibl
     @Override
     public void onAuthenticationRequest() {
         redirectForAuthentication();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (mService != null) {
+            unbindService(mConnection);
+        }
+    }
+
+    @Override
+    public void onCouponStatusObtained(final boolean isEnabled) {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                Switch switchView = (Switch) findViewById(R.id.switch1);
+                switchView.setChecked(isEnabled);
+            }
+        });
+
     }
 }
