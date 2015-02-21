@@ -37,17 +37,13 @@ public class FlexibleMioponService extends Service {
     private final String LOG_TAG = "FlexibleMioponService";
     private static final String CALLBACK_URI = "com.subaru.flexiblemiopon://callback";
     private static final String DEVELOPER_ID = "lNuh3hfMUS52SCTHv4O";
+    private static final String REDIRECT_URI_BASE = "https://api.iijmio.jp/mobile/d/v1/authorization/?response_type=token&client_id=lNuh3hfMUS52SCTHv4O&redirect_uri=com.subaru.flexiblemiopon://callback";
 
     private OnDebugOutputListener mDebugListener;
-    private OnAuthenticationListener mAuthenticationListener;
     private OnSwitchListener mSwitchListener;
 
     public void setOnDebugOutputListener(OnDebugOutputListener listener) {
         mDebugListener = listener;
-    }
-
-    public void setOnAuthenticationListener(OnAuthenticationListener listener) {
-        mAuthenticationListener = listener;
     }
 
     public void setOnSwitchListener(OnSwitchListener listener) {
@@ -56,8 +52,24 @@ public class FlexibleMioponService extends Service {
 
     public void checkAuthentication() {
         if (!isTokenAvailable()) {
-            mAuthenticationListener.onAuthenticationRequest();
+            redirectForAuthentication();
         }
+    }
+
+    public void redirectForAuthentication() {
+        String redirectUri = resolveUri();
+        Uri uri = Uri.parse(redirectUri);
+        Intent i = new Intent(Intent.ACTION_VIEW, uri);
+        i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        startActivity(i);
+    }
+
+    private String resolveUri() {
+        return REDIRECT_URI_BASE + "&state=" + createSession();
+    }
+
+    private String createSession() {
+        return "hoge";
     }
 
     private boolean isTokenAvailable() {
@@ -96,9 +108,13 @@ public class FlexibleMioponService extends Service {
 
                 try {
                     JSONObject jsonObject = new JSONObject(response);
-                    CouponInfo info = (new CouponInfo())
+                    CouponInfo.HdoInfo hdoInfo = new CouponInfo.HdoInfo.HdoInfoBuilder()
+                            .setCouponUse(true)
+                            .build();
+                    CouponInfo couponInfo = new CouponInfo.CouponBuilder()
                             .setHddServiceCode(jsonObject.getString("couponInfo"))
-                            .setHdoInfo(new CouponInfo.HdoInfo().setCouponUse(true));
+                            .setHdoInfo(hdoInfo)
+                            .build();
                     mSwitchListener.onCouponStatusObtained(true);
                 } catch (JSONException e) {
                     e.printStackTrace();
@@ -156,10 +172,6 @@ public class FlexibleMioponService extends Service {
 
     interface OnDebugOutputListener {
         public void onDebugRequest(String str);
-    }
-
-    interface OnAuthenticationListener {
-        public void onAuthenticationRequest();
     }
 
     interface OnSwitchListener {

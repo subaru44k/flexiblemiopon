@@ -17,10 +17,9 @@ import android.widget.TextView;
 import com.subaru.flexiblemiopon.data.AccessToken;
 
 
-public class FlexibleMioponActivity extends ActionBarActivity implements FlexibleMioponService.OnDebugOutputListener, FlexibleMioponService.OnAuthenticationListener, FlexibleMioponService.OnSwitchListener{
+public class FlexibleMioponActivity extends ActionBarActivity implements FlexibleMioponService.OnDebugOutputListener, FlexibleMioponService.OnSwitchListener{
 
     private final String LOG_TAG = "FlexibleMioponActivity";
-    private static final String REDIRECT_URI_BASE = "https://api.iijmio.jp/mobile/d/v1/authorization/?response_type=token&client_id=lNuh3hfMUS52SCTHv4O&redirect_uri=com.subaru.flexiblemiopon://callback";
 
     private FlexibleMioponService mService;
     private FlexibleMioponActivity mActivity = this;
@@ -73,21 +72,6 @@ public class FlexibleMioponActivity extends ActionBarActivity implements Flexibl
         }
     }
 
-    public void redirectForAuthentication() {
-        String redirectUri = resolveUri();
-        Uri uri = Uri.parse(redirectUri);
-        Intent i = new Intent(Intent.ACTION_VIEW, uri);
-        startActivity(i);
-    }
-
-    private String resolveUri() {
-        return REDIRECT_URI_BASE + "&state=" + createSession();
-    }
-
-    private String createSession() {
-        return "hoge";
-    }
-
     @Override
     protected void onNewIntent(Intent intent) {
         Log.d(LOG_TAG, "onNewIntent");
@@ -99,6 +83,7 @@ public class FlexibleMioponActivity extends ActionBarActivity implements Flexibl
         }
 
         mService.setOnDebugOutputListener(this);
+        mService.setOnSwitchListener(this);
         mService.getTokenFromAuth(intent);
     }
 
@@ -114,17 +99,11 @@ public class FlexibleMioponActivity extends ActionBarActivity implements Flexibl
 
     private void setListener() {
         mService.setOnDebugOutputListener(this);
-        mService.setOnAuthenticationListener(this);
     }
 
     @Override
     public void onDebugRequest(String str) {
         setDebugText(str);
-    }
-
-    @Override
-    public void onAuthenticationRequest() {
-        redirectForAuthentication();
     }
 
     @Override
