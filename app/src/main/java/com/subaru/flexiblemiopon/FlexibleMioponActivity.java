@@ -53,21 +53,13 @@ public class FlexibleMioponActivity extends ActionBarActivity implements Flexibl
         Intent serviceIntent = new Intent(FlexibleMioponActivity.this, FlexibleMioponService.class);
         bindService(serviceIntent, mConnection, Context.BIND_AUTO_CREATE);
 
-        Switch switchView = (Switch) findViewById(R.id.switch1);
-        switchView.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-                if (b) {
-                    mService.Authenticate();
-                }
-            }
-        });
     }
 
     @Override
     protected void onResume() {
         super.onResume();
         if (mService != null) {
+            removeSwitchListener();
             mService.Authenticate();
         }
     }
@@ -125,6 +117,16 @@ public class FlexibleMioponActivity extends ActionBarActivity implements Flexibl
         }
     }
 
+    private void removeSwitchListener() {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                Switch switchView = (Switch) findViewById(R.id.switch1);
+                switchView.setOnCheckedChangeListener(null);
+            }
+        });
+    }
+
     @Override
     public void onCouponStatusObtained(final boolean isEnabled) {
         runOnUiThread(new Runnable() {
@@ -132,6 +134,15 @@ public class FlexibleMioponActivity extends ActionBarActivity implements Flexibl
             public void run() {
                 Switch switchView = (Switch) findViewById(R.id.switch1);
                 switchView.setChecked(isEnabled);
+
+                // after obtained and set the switch status, add listener.
+                // if you do this onCreate, then switch.setChecked will invoke onCheckedChanged
+                switchView.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                    @Override
+                    public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                        mService.changeCoupon(b);
+                    }
+                });
             }
         });
 

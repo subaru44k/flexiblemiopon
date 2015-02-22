@@ -57,12 +57,18 @@ public class CouponInfo {
 
     public static class HdoInfo{
 
+        private final String mHdoServiceCode;
         private final boolean mIsCouponUsing;
         private final List<Coupon> mCouponList;
 
         private HdoInfo(HdoInfoBuilder builder) {
+            mHdoServiceCode = builder.mHdoServiceCode;
             mIsCouponUsing = builder.mIsCouponUsing;
             mCouponList = builder.mCouponList;
+        }
+
+        public String getHdoServiceCode() {
+            return mHdoServiceCode;
         }
 
         public boolean isCouponUsing() {
@@ -74,8 +80,14 @@ public class CouponInfo {
         }
 
         public static class HdoInfoBuilder {
+            private String mHdoServiceCode;
             private boolean mIsCouponUsing;
             private List<Coupon> mCouponList = new ArrayList<>();
+
+            public HdoInfoBuilder setHdoServiceCode(String hdoServiceCode) {
+                mHdoServiceCode = hdoServiceCode;
+                return this;
+            }
 
             public HdoInfoBuilder setCouponUse(boolean isUsing) {
                 mIsCouponUsing = isUsing;

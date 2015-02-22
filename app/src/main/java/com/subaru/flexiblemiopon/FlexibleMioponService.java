@@ -15,6 +15,7 @@ import com.subaru.flexiblemiopon.data.CouponInfo;
 import com.subaru.flexiblemiopon.data.TokenIO;
 import com.subaru.flexiblemiopon.request.Command;
 import com.subaru.flexiblemiopon.request.CouponChangeCommand;
+import com.subaru.flexiblemiopon.request.CouponStatusCheckCommand;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -131,6 +132,22 @@ public class FlexibleMioponService extends Service {
         }
     }
 
+    public void changeCoupon(boolean isCouponUse) {
+        Map<String, AccessToken> tokenMap = readExistingToken();
+
+        AccessToken token = null;
+        for (AccessToken eachToken : tokenMap.values()) {
+            token = eachToken;
+        }
+        Command couponChangeCommand = new CouponChangeCommand(DEVELOPER_ID, token, mCouponInfo, isCouponUse);
+        couponChangeCommand.executeAsync(new Command.OnCommandExecutedListener() {
+            @Override
+            public void onCommandExecuted(String response) {
+                // TODO check response code and change the switch. If it failed, set timer to execute later.
+            }
+        });
+    }
+
     public void retrieveCouponInfo() {
         retrieveCouponInfo(readExistingToken());
     }
@@ -145,7 +162,7 @@ public class FlexibleMioponService extends Service {
         for (AccessToken eachToken : tokenMap.values()) {
             token = eachToken;
         }
-        Command command = new CouponChangeCommand(DEVELOPER_ID, token);
+        Command command = new CouponStatusCheckCommand(DEVELOPER_ID, token);
 
         String response = command.executeAsync(new Command.OnCommandExecutedListener() {
             @Override
@@ -213,14 +230,15 @@ public class FlexibleMioponService extends Service {
 
         JSONObject hdoInfoObject = (JSONObject) hdoInfoArray.get(j);
         String couponUse = hdoInfoObject.getString("couponUse");
+        String hdoServiceCode = hdoInfoObject.getString("hdoServiceCode");
         JSONArray couponArrayInHdoInfo = hdoInfoObject.getJSONArray("coupon");
         for (int l=0; l<couponArrayInHdoInfo.length(); l++) {
             CouponInfo.Coupon coupon = getCoupon(couponBuilder, couponArrayInHdoInfo, l);
             hdoInfoBuilder.setCoupon(coupon);
         }
-
         hdoInfo = hdoInfoBuilder
                 .setCouponUse(Boolean.parseBoolean(couponUse))
+                .setHdoServiceCode(hdoServiceCode)
                 .build();
         return hdoInfo;
     }
