@@ -8,14 +8,16 @@ import android.os.IBinder;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
 import android.widget.CompoundButton;
+import android.widget.RelativeLayout;
 import android.widget.Switch;
 import android.widget.TextView;
 
 import com.subaru.flexiblemiopon.data.AccessToken;
 
 
-public class FlexibleMioponActivity extends ActionBarActivity implements FlexibleMioponService.OnDebugOutputListener, FlexibleMioponService.OnSwitchListener{
+public class FlexibleMioponActivity extends ActionBarActivity implements FlexibleMioponService.OnViewOperationListener, FlexibleMioponService.OnSwitchListener{
 
     private final String LOG_TAG = "FlexibleMioponActivity";
 
@@ -102,6 +104,17 @@ public class FlexibleMioponActivity extends ActionBarActivity implements Flexibl
     @Override
     public void onDebugRequest(String str) {
         setDebugText(str);
+    }
+
+    @Override
+    public void onCouponViewChange(final View view) {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                RelativeLayout remainingCouponLayout = (RelativeLayout) findViewById(R.id.remainingCouponLayout);
+                remainingCouponLayout.addView(view);
+            }
+        });
     }
 
     @Override

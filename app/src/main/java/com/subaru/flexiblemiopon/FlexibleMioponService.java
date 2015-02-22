@@ -2,10 +2,13 @@ package com.subaru.flexiblemiopon;
 
 import android.app.Service;
 import android.content.Intent;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Binder;
 import android.os.IBinder;
 import android.util.Log;
+import android.view.View;
+import android.widget.TextView;
 
 import com.subaru.flexiblemiopon.data.AccessToken;
 import com.subaru.flexiblemiopon.data.CouponInfo;
@@ -13,6 +16,7 @@ import com.subaru.flexiblemiopon.data.TokenIO;
 import com.subaru.flexiblemiopon.request.Command;
 import com.subaru.flexiblemiopon.request.CouponChangeCommand;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -34,10 +38,11 @@ public class FlexibleMioponService extends Service {
     private static final String DEVELOPER_ID = "lNuh3hfMUS52SCTHv4O";
     private static final String REDIRECT_URI_BASE = "https://api.iijmio.jp/mobile/d/v1/authorization/?response_type=token&client_id=lNuh3hfMUS52SCTHv4O&redirect_uri=com.subaru.flexiblemiopon://callback";
 
-    private OnDebugOutputListener mDebugListener;
+    private OnViewOperationListener mDebugListener;
     private OnSwitchListener mSwitchListener;
+    CouponInfo mCouponInfo;
 
-    public void setOnDebugOutputListener(OnDebugOutputListener listener) {
+    public void setOnDebugOutputListener(OnViewOperationListener listener) {
         mDebugListener = listener;
     }
 
@@ -58,11 +63,19 @@ public class FlexibleMioponService extends Service {
         }
     }
 
+    /**
+     * Write AccessToken to local storage
+     * @param token token to be write
+     */
     private void writeToken(AccessToken token) {
         TokenIO io = new TokenIO(getApplicationContext());
         io.writeAccessToken(token.getAccessToken(), token);
     }
 
+    /**
+     * Read exinting AccessToken from local storage
+     * @return Map of tokens
+     */
     private Map<String, AccessToken> readExistingToken() {
         Map<String, AccessToken> tokenMap = new HashMap<>();
         TokenIO io = new TokenIO(getApplicationContext());
@@ -72,6 +85,9 @@ public class FlexibleMioponService extends Service {
         return tokenMap;
     }
 
+    /**
+     * Redirect to IIJ's website and request to input information.
+     */
     public void redirectForAuthentication() {
         String redirectUri = resolveUri();
         Uri uri = Uri.parse(redirectUri);
@@ -106,7 +122,7 @@ public class FlexibleMioponService extends Service {
                 Map<String, String> parameterSet = getFragmentParameterMap(uri);
                 AccessToken token = new AccessToken(parameterSet.get("access_token"),
                         parameterSet.get("token_type"),
-                        10000,
+                        Integer.parseInt(parameterSet.get("expires_in")),
                         parameterSet.get("state"));
 
                 // write token for use again without authentication
@@ -137,15 +153,21 @@ public class FlexibleMioponService extends Service {
                 Log.d(LOG_TAG, response);
 
                 try {
-                    JSONObject jsonObject = new JSONObject(response);
-                    CouponInfo.HdoInfo hdoInfo = new CouponInfo.HdoInfo.HdoInfoBuilder()
-                            .setCouponUse(true)
-                            .build();
-                    CouponInfo couponInfo = new CouponInfo.CouponBuilder()
-                            .setHddServiceCode(jsonObject.getString("couponInfo"))
-                            .setHdoInfo(hdoInfo)
-                            .build();
-                    mSwitchListener.onCouponStatusObtained(true);
+                    mCouponInfo = createCouponInfo(response);
+                    mSwitchListener.onCouponStatusObtained(mCouponInfo.getHdoInfoList().get(0).isCouponUsing());
+                    TextView view = new TextView(getApplicationContext());
+                    int couponRemaining = 0;
+                    for (CouponInfo.Coupon coupon : mCouponInfo.getCouponList()) {
+                        couponRemaining += Integer.parseInt(coupon.getVolume());
+                    }
+                    for (CouponInfo.HdoInfo hdoInfo : mCouponInfo.getHdoInfoList()) {
+                        for (CouponInfo.Coupon coupon : hdoInfo.getCouponList()) {
+                            couponRemaining += Integer.parseInt(coupon.getVolume());
+                        }
+                    }
+                    view.setText(Integer.toString(couponRemaining));
+                    view.setBackgroundColor(Color.BLUE);
+                    mDebugListener.onCouponViewChange(view);
                 } catch (JSONException e) {
                     e.printStackTrace();
                     return;
@@ -153,6 +175,70 @@ public class FlexibleMioponService extends Service {
             }
         });
         mDebugListener.onDebugRequest(response);
+    }
+
+    /**
+     * Create CouponInfo from response
+     * @param response response from IIJ
+     * @return instance of CouponInfo created from response
+     * @throws JSONException
+     */
+    private CouponInfo createCouponInfo(String response) throws JSONException {
+        CouponInfo.HdoInfo.HdoInfoBuilder hdoInfoBuilder = new CouponInfo.HdoInfo.HdoInfoBuilder();
+        CouponInfo.Coupon.CouponBuilder couponBuilder = new CouponInfo.Coupon.CouponBuilder();
+        CouponInfo.CouponInfoBuilder couponInfoBuilder = new CouponInfo.CouponInfoBuilder();
+        JSONObject jsonObject = new JSONObject(response);
+        JSONArray couponInfoArray = jsonObject.getJSONArray("couponInfo");
+        { // FIXME strictly, couponInfo can be a multiple value, so this block must be for loop
+            int i = 0;
+            JSONObject couponInfoObject = (JSONObject) couponInfoArray.get(i);
+            String hddServiceCode = couponInfoObject.getString("hddServiceCode");
+            JSONArray hdoInfoArray = couponInfoObject.getJSONArray("hdoInfo");
+            JSONArray couponArray = couponInfoObject.getJSONArray("coupon");
+            for (int j=0; j<hdoInfoArray.length(); j++) {
+                CouponInfo.HdoInfo hdoInfo = getHdoInfo(hdoInfoBuilder, couponBuilder, hdoInfoArray, j);
+                couponInfoBuilder.setHdoInfo(hdoInfo);
+            }
+            for (int k=0; k<couponArray.length(); k++) {
+                CouponInfo.Coupon coupon = getCoupon(couponBuilder, couponArray, k);
+                couponInfoBuilder.setCoupon(coupon);
+            }
+            couponInfoBuilder.setHddServiceCode(hddServiceCode);
+        }
+        return couponInfoBuilder.build();
+    }
+
+    private CouponInfo.HdoInfo getHdoInfo(CouponInfo.HdoInfo.HdoInfoBuilder hdoInfoBuilder, CouponInfo.Coupon.CouponBuilder couponBuilder, JSONArray hdoInfoArray, int j) throws JSONException {
+        CouponInfo.HdoInfo hdoInfo;
+
+        JSONObject hdoInfoObject = (JSONObject) hdoInfoArray.get(j);
+        String couponUse = hdoInfoObject.getString("couponUse");
+        JSONArray couponArrayInHdoInfo = hdoInfoObject.getJSONArray("coupon");
+        for (int l=0; l<couponArrayInHdoInfo.length(); l++) {
+            CouponInfo.Coupon coupon = getCoupon(couponBuilder, couponArrayInHdoInfo, l);
+            hdoInfoBuilder.setCoupon(coupon);
+        }
+
+        hdoInfo = hdoInfoBuilder
+                .setCouponUse(Boolean.parseBoolean(couponUse))
+                .build();
+        return hdoInfo;
+    }
+
+    private CouponInfo.Coupon getCoupon(CouponInfo.Coupon.CouponBuilder couponBuilder, JSONArray couponArrayInHdoInfo, int l) throws JSONException {
+        CouponInfo.Coupon coupon;
+
+        JSONObject couponObject = (JSONObject) couponArrayInHdoInfo.get(l);
+        String volume = couponObject.getString("volume");
+        String expire = couponObject.getString("expire");
+        String type = couponObject.getString("type");
+
+        coupon = couponBuilder
+                .setVolume(volume)
+                .setExpire(expire)
+                .setType(type)
+                .build();
+        return coupon;
     }
 
     private Map<String, String> getFragmentParameterMap(Uri uri) {
@@ -196,8 +282,9 @@ public class FlexibleMioponService extends Service {
         return super.onUnbind(intent);
     }
 
-    interface OnDebugOutputListener {
+    interface OnViewOperationListener {
         public void onDebugRequest(String str);
+        public void onCouponViewChange(View view);
     }
 
     interface OnSwitchListener {
