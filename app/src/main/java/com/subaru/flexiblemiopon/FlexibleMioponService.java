@@ -9,22 +9,17 @@ import android.util.Log;
 
 import com.subaru.flexiblemiopon.data.AccessToken;
 import com.subaru.flexiblemiopon.data.CouponInfo;
+import com.subaru.flexiblemiopon.data.TokenIO;
 import com.subaru.flexiblemiopon.request.Command;
 import com.subaru.flexiblemiopon.request.CouponChangeCommand;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 
 public class FlexibleMioponService extends Service {
-
-    private AccessToken mToken;
 
     private final IBinder mBinder = new LocalBinder();
     public class LocalBinder extends Binder {
@@ -50,10 +45,31 @@ public class FlexibleMioponService extends Service {
         mSwitchListener = listener;
     }
 
-    public void checkAuthentication() {
-        if (!isTokenAvailable()) {
+    /**
+     * Check if AccessToken is valid.
+     * If it's invalid then obtain it.
+     */
+    public void Authenticate() {
+        Map<String, AccessToken> tokenMap = readExistingToken();
+        if (!isTokenAvailable(tokenMap)) {
             redirectForAuthentication();
+        } else {
+            retrieveCouponInfo(tokenMap);
         }
+    }
+
+    private void writeToken(AccessToken token) {
+        TokenIO io = new TokenIO(getApplicationContext());
+        io.writeAccessToken(token.getAccessToken(), token);
+    }
+
+    private Map<String, AccessToken> readExistingToken() {
+        Map<String, AccessToken> tokenMap = new HashMap<>();
+        TokenIO io = new TokenIO(getApplicationContext());
+        for (String tokenFileString : io.readAccessTokenSet()) {
+            tokenMap.put(tokenFileString, io.readAccessToken(tokenFileString));
+        }
+        return tokenMap;
     }
 
     public void redirectForAuthentication() {
@@ -72,8 +88,11 @@ public class FlexibleMioponService extends Service {
         return "hoge";
     }
 
-    private boolean isTokenAvailable() {
-        return mToken == null ? false : true;
+    private boolean isTokenAvailable(Map<String, AccessToken> tokenMap) {
+        if (tokenMap == null || tokenMap.size() == 0) {
+            return false;
+        }
+        return true;
     }
 
     public void getTokenFromAuth(Intent intent) {
@@ -89,17 +108,28 @@ public class FlexibleMioponService extends Service {
                         parameterSet.get("token_type"),
                         10000,
                         parameterSet.get("state"));
-                storeToken(token);
+
+                // write token for use again without authentication
+                writeToken(token);
             }
         }
     }
 
     public void retrieveCouponInfo() {
-        if (mToken == null) {
+        retrieveCouponInfo(readExistingToken());
+    }
+
+    private void retrieveCouponInfo(Map<String, AccessToken> tokenMap) {
+        if (tokenMap == null) {
             return;
         }
 
-        Command command = new CouponChangeCommand(DEVELOPER_ID, mToken);
+        // FIXME if multiple token exists, required to be changed here.
+        AccessToken token = null;
+        for (AccessToken eachToken : tokenMap.values()) {
+            token = eachToken;
+        }
+        Command command = new CouponChangeCommand(DEVELOPER_ID, token);
 
         String response = command.executeAsync(new Command.OnCommandExecutedListener() {
             @Override
@@ -123,10 +153,6 @@ public class FlexibleMioponService extends Service {
             }
         });
         mDebugListener.onDebugRequest(response);
-    }
-
-    private void storeToken(AccessToken token) {
-        mToken = token;
     }
 
     private Map<String, String> getFragmentParameterMap(Uri uri) {

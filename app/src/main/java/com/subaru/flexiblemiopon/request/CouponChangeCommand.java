@@ -1,5 +1,7 @@
 package com.subaru.flexiblemiopon.request;
 
+import android.util.Log;
+
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpGet;
@@ -15,12 +17,18 @@ import com.subaru.flexiblemiopon.data.AccessToken;
  */
 public class CouponChangeCommand extends Command {
 
+    private final String LOG_TAG = "CouponChangeCommand";
+
     public CouponChangeCommand(String developerId, AccessToken token) {
         super(developerId, token);
     }
 
     @Override
     public String execute() {
+        if (mAccessToken == null) {
+            Log.d(LOG_TAG, "access token is null");
+            return "";
+        }
         HttpGet httpGet = new HttpGet(REQUEST_URI);
         httpGet.setHeader("X-IIJmio-Developer", mDeveloperId);
         httpGet.setHeader("X-IIJmio-Authorization", mAccessToken.getAccessToken());

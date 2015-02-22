@@ -4,9 +4,7 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
-import android.net.Uri;
 import android.os.IBinder;
-import android.os.Looper;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -28,7 +26,7 @@ public class FlexibleMioponActivity extends ActionBarActivity implements Flexibl
         public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
             mService = ((FlexibleMioponService.LocalBinder) iBinder).getService();
             mActivity.setListener();
-            mService.checkAuthentication();
+            mService.Authenticate();
         }
 
         @Override
@@ -58,7 +56,7 @@ public class FlexibleMioponActivity extends ActionBarActivity implements Flexibl
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
                 if (b) {
-                    mService.retrieveCouponInfo();
+                    mService.Authenticate();
                 }
             }
         });
@@ -68,7 +66,7 @@ public class FlexibleMioponActivity extends ActionBarActivity implements Flexibl
     protected void onResume() {
         super.onResume();
         if (mService != null) {
-            mService.retrieveCouponInfo();
+            mService.Authenticate();
         }
     }
 
@@ -82,9 +80,8 @@ public class FlexibleMioponActivity extends ActionBarActivity implements Flexibl
             return;
         }
 
-        mService.setOnDebugOutputListener(this);
-        mService.setOnSwitchListener(this);
         mService.getTokenFromAuth(intent);
+        mService.retrieveCouponInfo();
     }
 
     private void setDebugText(final String text) {
@@ -99,6 +96,7 @@ public class FlexibleMioponActivity extends ActionBarActivity implements Flexibl
 
     private void setListener() {
         mService.setOnDebugOutputListener(this);
+        mService.setOnSwitchListener(this);
     }
 
     @Override
