@@ -33,10 +33,10 @@ public class CouponChangeInfo {
         }
     }
 
-    public static class HdoInfoBuilder {
+    public static class HdoChangeInfoBuilder {
         private JSONArray hdoInfoArray = new JSONArray();
 
-        public HdoInfoBuilder setHdoInfo(String hdoServiceCode, boolean isCouponUse) {
+        public HdoChangeInfoBuilder setHdoInfo(String hdoServiceCode, boolean isCouponUse) {
             try {
                 JSONObject jsonOneData = new JSONObject();
                 jsonOneData.put("hdoServiceCode", hdoServiceCode);

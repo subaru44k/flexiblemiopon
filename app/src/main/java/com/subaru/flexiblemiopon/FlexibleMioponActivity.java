@@ -9,6 +9,7 @@ import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.CompoundButton;
 import android.widget.RelativeLayout;
 import android.widget.Switch;
@@ -99,12 +100,15 @@ public class FlexibleMioponActivity extends ActionBarActivity implements Flexibl
     }
 
     @Override
-    public void onCouponViewChange(final View view) {
+    public void onCouponViewChange(final View view, final int i) {
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 RelativeLayout remainingCouponLayout = (RelativeLayout) findViewById(R.id.remainingCouponLayout);
-                remainingCouponLayout.addView(view);
+                RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+                params.addRule(RelativeLayout.ALIGN_PARENT_TOP, RelativeLayout.TRUE);
+                params.topMargin = i * 40;
+                remainingCouponLayout.addView(view, params);
             }
         });
     }

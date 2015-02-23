@@ -8,20 +8,24 @@ import android.os.Binder;
 import android.os.IBinder;
 import android.util.Log;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.subaru.flexiblemiopon.data.AccessToken;
 import com.subaru.flexiblemiopon.data.CouponInfo;
+import com.subaru.flexiblemiopon.data.PacketLogInfo;
 import com.subaru.flexiblemiopon.data.TokenIO;
 import com.subaru.flexiblemiopon.request.Command;
 import com.subaru.flexiblemiopon.request.CouponChangeCommand;
 import com.subaru.flexiblemiopon.request.CouponStatusCheckCommand;
+import com.subaru.flexiblemiopon.request.CouponUsageCheckCommand;
+import com.subaru.flexiblemiopon.util.ResponseParser;
 
-import org.json.JSONArray;
 import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class FlexibleMioponService extends Service {
@@ -42,6 +46,7 @@ public class FlexibleMioponService extends Service {
     private OnViewOperationListener mDebugListener;
     private OnSwitchListener mSwitchListener;
     CouponInfo mCouponInfo;
+    PacketLogInfo mPacketLogInfo;
 
     public void setOnDebugOutputListener(OnViewOperationListener listener) {
         mDebugListener = listener;
@@ -61,6 +66,7 @@ public class FlexibleMioponService extends Service {
             redirectForAuthentication();
         } else {
             retrieveCouponInfo(tokenMap);
+            checkCouponUsage(tokenMap);
         }
     }
 
@@ -170,7 +176,7 @@ public class FlexibleMioponService extends Service {
                 Log.d(LOG_TAG, response);
 
                 try {
-                    mCouponInfo = createCouponInfo(response);
+                    mCouponInfo = ResponseParser.parseCouponInfoResponse(response);
                     mSwitchListener.onCouponStatusObtained(mCouponInfo.getHdoInfoList().get(0).isCouponUsing());
                     TextView view = new TextView(getApplicationContext());
                     int couponRemaining = 0;
@@ -183,80 +189,59 @@ public class FlexibleMioponService extends Service {
                         }
                     }
                     view.setText(Integer.toString(couponRemaining));
-                    view.setBackgroundColor(Color.BLUE);
-                    mDebugListener.onCouponViewChange(view);
+                    view.setBackgroundColor(Color.GREEN);
+                    mDebugListener.onCouponViewChange(view, 0);
                 } catch (JSONException e) {
                     e.printStackTrace();
                     return;
                 }
             }
         });
-        mDebugListener.onDebugRequest(response);
     }
 
-    /**
-     * Create CouponInfo from response
-     * @param response response from IIJ
-     * @return instance of CouponInfo created from response
-     * @throws JSONException
-     */
-    private CouponInfo createCouponInfo(String response) throws JSONException {
-        CouponInfo.HdoInfo.HdoInfoBuilder hdoInfoBuilder = new CouponInfo.HdoInfo.HdoInfoBuilder();
-        CouponInfo.Coupon.CouponBuilder couponBuilder = new CouponInfo.Coupon.CouponBuilder();
-        CouponInfo.CouponInfoBuilder couponInfoBuilder = new CouponInfo.CouponInfoBuilder();
-        JSONObject jsonObject = new JSONObject(response);
-        JSONArray couponInfoArray = jsonObject.getJSONArray("couponInfo");
-        { // FIXME strictly, couponInfo can be a multiple value, so this block must be for loop
-            int i = 0;
-            JSONObject couponInfoObject = (JSONObject) couponInfoArray.get(i);
-            String hddServiceCode = couponInfoObject.getString("hddServiceCode");
-            JSONArray hdoInfoArray = couponInfoObject.getJSONArray("hdoInfo");
-            JSONArray couponArray = couponInfoObject.getJSONArray("coupon");
-            for (int j=0; j<hdoInfoArray.length(); j++) {
-                CouponInfo.HdoInfo hdoInfo = getHdoInfo(hdoInfoBuilder, couponBuilder, hdoInfoArray, j);
-                couponInfoBuilder.setHdoInfo(hdoInfo);
-            }
-            for (int k=0; k<couponArray.length(); k++) {
-                CouponInfo.Coupon coupon = getCoupon(couponBuilder, couponArray, k);
-                couponInfoBuilder.setCoupon(coupon);
-            }
-            couponInfoBuilder.setHddServiceCode(hddServiceCode);
+    public void checkCouponUsage(Map<String, AccessToken> tokenMap) {
+        if (tokenMap == null) {
+            return;
         }
-        return couponInfoBuilder.build();
-    }
 
-    private CouponInfo.HdoInfo getHdoInfo(CouponInfo.HdoInfo.HdoInfoBuilder hdoInfoBuilder, CouponInfo.Coupon.CouponBuilder couponBuilder, JSONArray hdoInfoArray, int j) throws JSONException {
-        CouponInfo.HdoInfo hdoInfo;
-
-        JSONObject hdoInfoObject = (JSONObject) hdoInfoArray.get(j);
-        String couponUse = hdoInfoObject.getString("couponUse");
-        String hdoServiceCode = hdoInfoObject.getString("hdoServiceCode");
-        JSONArray couponArrayInHdoInfo = hdoInfoObject.getJSONArray("coupon");
-        for (int l=0; l<couponArrayInHdoInfo.length(); l++) {
-            CouponInfo.Coupon coupon = getCoupon(couponBuilder, couponArrayInHdoInfo, l);
-            hdoInfoBuilder.setCoupon(coupon);
+        // FIXME if multiple token exists, required to be changed here.
+        AccessToken token = null;
+        for (AccessToken eachToken : tokenMap.values()) {
+            token = eachToken;
         }
-        hdoInfo = hdoInfoBuilder
-                .setCouponUse(Boolean.parseBoolean(couponUse))
-                .setHdoServiceCode(hdoServiceCode)
-                .build();
-        return hdoInfo;
-    }
+        Command command = new CouponUsageCheckCommand(DEVELOPER_ID, token);
 
-    private CouponInfo.Coupon getCoupon(CouponInfo.Coupon.CouponBuilder couponBuilder, JSONArray couponArrayInHdoInfo, int l) throws JSONException {
-        CouponInfo.Coupon coupon;
+        String response = command.executeAsync(new Command.OnCommandExecutedListener() {
+            @Override
+            public void onCommandExecuted(String response) {
+                Log.d(LOG_TAG, response);
+                try {
+                    mPacketLogInfo = ResponseParser.parsePacketLogInfo(response);
 
-        JSONObject couponObject = (JSONObject) couponArrayInHdoInfo.get(l);
-        String volume = couponObject.getString("volume");
-        String expire = couponObject.getString("expire");
-        String type = couponObject.getString("type");
+                    List<PacketLogInfo.HdoInfo.PacketLog> packetLogList = mPacketLogInfo.getHdoInfoList().get(0).getPacketLogList();
+                    RelativeLayout layout = new RelativeLayout(getApplicationContext());
+                    RelativeLayout.LayoutParams params;
+                    int i=0;
+                    for (PacketLogInfo.HdoInfo.PacketLog info : packetLogList) {
+                        i++;
+                        TextView withCouponView = new TextView(getApplicationContext());
+                        withCouponView.setText(info.getWithCoupon());
+                        withCouponView.setBackgroundColor(Color.BLUE);
+                        mDebugListener.onCouponViewChange(withCouponView, i);
 
-        coupon = couponBuilder
-                .setVolume(volume)
-                .setExpire(expire)
-                .setType(type)
-                .build();
-        return coupon;
+//                        i++;
+//                        TextView withoutCouponView = new TextView(getApplicationContext());
+//                        withoutCouponView.setText(info.getWithoutCoupon());
+//                        withoutCouponView.setBackgroundColor(Color.GRAY);
+//                        mDebugListener.onCouponViewChange(withoutCouponView, i);
+
+                    }
+
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
     }
 
     private Map<String, String> getFragmentParameterMap(Uri uri) {
@@ -302,7 +287,7 @@ public class FlexibleMioponService extends Service {
 
     interface OnViewOperationListener {
         public void onDebugRequest(String str);
-        public void onCouponViewChange(View view);
+        public void onCouponViewChange(View view, int i);
     }
 
     interface OnSwitchListener {
