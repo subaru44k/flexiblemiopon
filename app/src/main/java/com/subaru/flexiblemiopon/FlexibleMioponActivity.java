@@ -4,26 +4,32 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.net.Uri;
 import android.os.IBinder;
+import android.support.v4.app.Fragment;
+import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.CompoundButton;
-import android.widget.RelativeLayout;
 import android.widget.Switch;
 import android.widget.TextView;
 
 import com.subaru.flexiblemiopon.data.AccessToken;
+import com.subaru.flexiblemiopon.view.FlexibleFragmentPagerAdaper;
+import com.subaru.flexiblemiopon.view.ItemFragment;
+import com.subaru.flexiblemiopon.view.MainFragment;
+import com.subaru.flexiblemiopon.view.PlusOneFragment;
 
 
-public class FlexibleMioponActivity extends ActionBarActivity implements FlexibleMioponService.OnViewOperationListener, FlexibleMioponService.OnSwitchListener{
+public class FlexibleMioponActivity extends ActionBarActivity implements ItemFragment.OnFragmentInteractionListener, PlusOneFragment.OnFragmentInteractionListener, MainFragment.OnFragmentInteractionListener, FlexibleMioponService.OnViewOperationListener, FlexibleMioponService.OnSwitchListener{
 
     private final String LOG_TAG = "FlexibleMioponActivity";
 
     private FlexibleMioponService mService;
     private FlexibleMioponActivity mActivity = this;
+    private FlexibleFragmentPagerAdaper mFragmentPagerAdapter;
+
     private ServiceConnection mConnection = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
@@ -38,6 +44,10 @@ public class FlexibleMioponActivity extends ActionBarActivity implements Flexibl
         }
     };
 
+    public FlexibleMioponService getService() {
+        return mService;
+    }
+
     private AccessToken.TokenExpiredListener mTokenListner = new AccessToken.TokenExpiredListener() {
         @Override
         public void onTokenExpired() {
@@ -50,6 +60,12 @@ public class FlexibleMioponActivity extends ActionBarActivity implements Flexibl
         Log.d(LOG_TAG, "onCreate");
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        ViewPager viewPager = (ViewPager) findViewById(R.id.pager);
+        mFragmentPagerAdapter = new FlexibleFragmentPagerAdaper(getSupportFragmentManager());
+        viewPager.setAdapter(mFragmentPagerAdapter);
+        // set initial fragment
+        viewPager.setCurrentItem(1);
 
         Intent serviceIntent = new Intent(FlexibleMioponActivity.this, FlexibleMioponService.class);
         bindService(serviceIntent, mConnection, Context.BIND_AUTO_CREATE);
@@ -104,11 +120,11 @@ public class FlexibleMioponActivity extends ActionBarActivity implements Flexibl
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                RelativeLayout remainingCouponLayout = (RelativeLayout) findViewById(R.id.remainingCouponLayout);
-                RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-                params.addRule(RelativeLayout.ALIGN_PARENT_TOP, RelativeLayout.TRUE);
-                params.topMargin = i * 40;
-                remainingCouponLayout.addView(view, params);
+                Fragment fragment = mFragmentPagerAdapter.getFragment(1);
+                if (fragment instanceof MainFragment) {
+                    MainFragment mainFragment = (MainFragment) fragment;
+                    mainFragment.setView(view, i);
+                }
             }
         });
     }
@@ -122,33 +138,29 @@ public class FlexibleMioponActivity extends ActionBarActivity implements Flexibl
     }
 
     private void removeSwitchListener() {
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                Switch switchView = (Switch) findViewById(R.id.switch1);
-                switchView.setOnCheckedChangeListener(null);
-            }
-        });
+        Fragment fragment = mFragmentPagerAdapter.getFragment(1);
+        if (fragment instanceof MainFragment) {
+            MainFragment mainFragment = (MainFragment) fragment;
+            mainFragment.removeSwitchListener();
+        }
     }
 
     @Override
-    public void onCouponStatusObtained(final boolean isEnabled) {
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                Switch switchView = (Switch) findViewById(R.id.switch1);
-                switchView.setChecked(isEnabled);
+    public void onCouponStatusObtained(boolean isEnabled) {
+        Fragment fragment = mFragmentPagerAdapter.getFragment(1);
+        if (fragment instanceof MainFragment) {
+            MainFragment mainFragment = (MainFragment) fragment;
+            mainFragment.setSwitch(isEnabled);
+        }
+    }
 
-                // after obtained and set the switch status, add listener.
-                // if you do this onCreate, then switch.setChecked will invoke onCheckedChanged
-                switchView.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-                    @Override
-                    public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-                        mService.changeCoupon(b);
-                    }
-                });
-            }
-        });
+    @Override
+    public void onFragmentInteraction(Uri uri) {
 
+    }
+
+    @Override
+    public void onFragmentInteraction(String str) {
+        mService.changeCoupon(Boolean.parseBoolean(str));
     }
 }
