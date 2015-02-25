@@ -4,6 +4,7 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.IBinder;
 import android.support.v4.app.Fragment;
@@ -20,6 +21,7 @@ import com.subaru.flexiblemiopon.view.FlexibleFragmentPagerAdaper;
 import com.subaru.flexiblemiopon.view.ItemFragment;
 import com.subaru.flexiblemiopon.view.MainFragment;
 import com.subaru.flexiblemiopon.view.PlusOneFragment;
+import com.viewpagerindicator.CirclePageIndicator;
 
 
 public class FlexibleMioponActivity extends ActionBarActivity implements ItemFragment.OnFragmentInteractionListener, PlusOneFragment.OnFragmentInteractionListener, MainFragment.OnFragmentInteractionListener, FlexibleMioponService.OnViewOperationListener, FlexibleMioponService.OnSwitchListener{
@@ -64,12 +66,14 @@ public class FlexibleMioponActivity extends ActionBarActivity implements ItemFra
         ViewPager viewPager = (ViewPager) findViewById(R.id.pager);
         mFragmentPagerAdapter = new FlexibleFragmentPagerAdaper(getSupportFragmentManager());
         viewPager.setAdapter(mFragmentPagerAdapter);
-        // set initial fragment
-        viewPager.setCurrentItem(1);
+//        // set initial fragment
+//        viewPager.setCurrentItem(1);
+
+        CirclePageIndicator circleIndicator = (CirclePageIndicator) findViewById(R.id.titles);
+        circleIndicator.setViewPager(viewPager);
 
         Intent serviceIntent = new Intent(FlexibleMioponActivity.this, FlexibleMioponService.class);
         bindService(serviceIntent, mConnection, Context.BIND_AUTO_CREATE);
-
     }
 
     @Override
