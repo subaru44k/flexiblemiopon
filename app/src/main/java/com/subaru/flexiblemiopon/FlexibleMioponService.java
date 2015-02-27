@@ -16,28 +16,20 @@ import com.subaru.flexiblemiopon.data.AccessToken;
 import com.subaru.flexiblemiopon.data.CouponInfo;
 import com.subaru.flexiblemiopon.data.PacketLogInfo;
 import com.subaru.flexiblemiopon.data.TokenIO;
-import com.subaru.flexiblemiopon.request.Command;
-import com.subaru.flexiblemiopon.request.PacketLogCheckCommand;
-import com.subaru.flexiblemiopon.util.ResponseParser;
 import com.subaru.flexiblemiopon.util.task.SimpleTaskExecutor;
 import com.subaru.flexiblemiopon.util.task.TaskExecutor;
 
-import static com.subaru.flexiblemiopon.Constant.DEVELOPER_ID;
 import static com.subaru.flexiblemiopon.Constant.CALLBACK_URI;
 import static com.subaru.flexiblemiopon.Constant.REDIRECT_URI_BASE;
-
-import org.json.JSONException;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.Future;
 
 public class FlexibleMioponService extends Service {
 
     private final IBinder mBinder = new LocalBinder();
     public class LocalBinder extends Binder {
-
         FlexibleMioponService getService() {
             return FlexibleMioponService.this;
         }
@@ -160,10 +152,14 @@ public class FlexibleMioponService extends Service {
         AccessToken token = getAccessToken(tokenMap);
         mTaskExecutor.executeCouponChange(mCouponInfo, isCouponUse, token, new TaskExecutor.OnCouponChangedListener() {
             @Override
-            public void onCouponChanged() {
+            public void onCouponChanged(boolean isCouponUse) {
                 // show toast or something?
                 mToast.setText("coupon changed successfully");
                 mToast.show();
+
+                // set switch with the correct status. Please care, while coupon change is retrying again and again in background, Activity is closed and opened.
+                // In this case, getCouponInfo will run and obtain the current status. And switch is changed to that state.
+                mSwitchListener.onCouponStatusObtained(isCouponUse);
             }
 
             @Override
@@ -220,6 +216,8 @@ public class FlexibleMioponService extends Service {
 
             @Override
             public void onNotifyRetryLater() {
+                mToast.setText("Coupon change rejected by IIJ side. I try it later, so just a moment please.");
+                mToast.show();
 
             }
         });
@@ -230,7 +228,7 @@ public class FlexibleMioponService extends Service {
             return;
         }
         AccessToken token = getAccessToken(tokenMap);
-        mTaskExecutor.getPacketLog(mCouponInfo, token, new TaskExecutor.OnPacketLogObtainedListener() {
+        mTaskExecutor.getPacketLog(token, new TaskExecutor.OnPacketLogObtainedListener() {
             @Override
             public void onPacketLogInfoObtained(PacketLogInfo packetLogInfo) {
                 List<PacketLogInfo.HdoInfo.PacketLog> packetLogList = packetLogInfo.getHdoInfoList().get(0).getPacketLogList();
@@ -263,7 +261,6 @@ public class FlexibleMioponService extends Service {
 
             }
         });
-
     }
 
     private Map<String, String> getFragmentParameterMap(Uri uri) {

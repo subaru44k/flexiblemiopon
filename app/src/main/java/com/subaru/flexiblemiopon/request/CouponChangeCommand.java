@@ -66,6 +66,6 @@ public class CouponChangeCommand extends Command {
             e.printStackTrace();
         }
 
-        return result + ":::" + "";
+        return result + ":::" + "None";
     }
 }

@@ -85,6 +85,10 @@ public class MainFragment extends Fragment {
             @Override
             public void run() {
                 Switch switchView = (Switch) getActivity().findViewById(R.id.switch1);
+                if (Boolean.valueOf(switchView.isChecked()).equals(Boolean.valueOf(isEnabled))) {
+                    // no need to change
+                    return;
+                }
                 switchView.setChecked(isEnabled);
 
                 // after obtained and set the switch status, add listener.
@@ -92,7 +96,7 @@ public class MainFragment extends Fragment {
                 switchView.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
                     @Override
                     public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-                        ((OnFragmentInteractionListener) getActivity()).onFragmentInteraction(Boolean.toString(b));
+                        mListener.onFragmentInteraction(Boolean.toString(b));
                     }
                 });
             }

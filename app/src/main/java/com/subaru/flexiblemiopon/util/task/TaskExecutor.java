@@ -10,7 +10,7 @@ import com.subaru.flexiblemiopon.data.PacketLogInfo;
 public interface TaskExecutor {
     public void getCouponInfo(AccessToken token, OnCouponInfoObtainedListener listener);
     public void executeCouponChange(CouponInfo couponInfo, boolean isCouponUse, AccessToken token, OnCouponChangedListener listener);
-    public void getPacketLog(CouponInfo couponInfo, AccessToken token, OnPacketLogObtainedListener listener);
+    public void getPacketLog(AccessToken token, OnPacketLogObtainedListener listener);
 
     interface OnCouponInfoObtainedListener {
         /**
@@ -36,7 +36,7 @@ public interface TaskExecutor {
         /**
          * Called when coupon changed correctly.
          */
-        void onCouponChanged();
+        void onCouponChanged(boolean isCouponUse);
 
         /**
          * Called when coupon cannot be changed due to some reason.

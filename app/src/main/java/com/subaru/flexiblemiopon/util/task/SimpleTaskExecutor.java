@@ -14,6 +14,7 @@ import com.subaru.flexiblemiopon.util.ResponseParser;
 import org.json.JSONException;
 
 import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -109,6 +110,8 @@ public class SimpleTaskExecutor implements TaskExecutor {
                     }
                 } catch (InterruptedException e) {
                     Log.d(LOG_TAG, "Get coupon info task cancelled");
+                } catch (ExecutionException e) {
+                    Log.d(LOG_TAG, "ExecutionException : " + e.getMessage());
                 } finally {
                     Log.d(LOG_TAG, "Get coupon info task finished");
                     return new Object();
@@ -119,6 +122,10 @@ public class SimpleTaskExecutor implements TaskExecutor {
 
     @Override
     public void executeCouponChange(final CouponInfo couponInfo, final boolean isCouponUse, final AccessToken token, final OnCouponChangedListener listener) {
+        if (couponInfo == null) { // TODO Task blocking is required before obtaining coupon info.
+            Log.w(LOG_TAG, "coupon info is null. Do not change coupon status.");
+            return;
+        }
         if (mCouponChangeFuture != null) {
             mCouponChangeFuture.cancel(true);
         }
@@ -141,7 +148,7 @@ public class SimpleTaskExecutor implements TaskExecutor {
                                 switch (status) {
                                     case "200":
                                         Log.d(LOG_TAG, "Coupon changed correctly.");
-                                        listener.onCouponChanged();
+                                        listener.onCouponChanged(isCouponUse);
                                         break;
                                     case "400":
                                         Log.w(LOG_TAG, "Invalid json or content type");
@@ -180,8 +187,8 @@ public class SimpleTaskExecutor implements TaskExecutor {
                         // let manager know coupon change task is executed
                         mManager.notifyCouponChangeInvoked();
 
-                        String response = future.get().split(":::")[0];
-                        if (!response.equals("429")) {
+                        String response = future.get();
+                        if (!response.split(":::")[0].equals("429")) {
                             break;
                         }
 
@@ -190,6 +197,8 @@ public class SimpleTaskExecutor implements TaskExecutor {
                     }
                 } catch (InterruptedException e) {
                     Log.d(LOG_TAG, "Coupon change task cancelled");
+                } catch (ExecutionException e) {
+                    Log.d(LOG_TAG, "ExecutionException : " + e.getMessage());
                 } finally {
                     Log.d(LOG_TAG, "Coupon change task finished");
                     return new Object();
@@ -199,7 +208,7 @@ public class SimpleTaskExecutor implements TaskExecutor {
     }
 
     @Override
-    public void getPacketLog(final CouponInfo couponInfo, final AccessToken token, final OnPacketLogObtainedListener listener) {
+    public void getPacketLog(final AccessToken token, final OnPacketLogObtainedListener listener) {
         if (mPacketlogFuture != null) {
             mPacketlogFuture.cancel(true);
         }
@@ -274,6 +283,8 @@ public class SimpleTaskExecutor implements TaskExecutor {
                     }
                 } catch (InterruptedException e) {
                     Log.d(LOG_TAG, "Get packetlog task cancelled");
+                } catch (ExecutionException e) {
+                    Log.d(LOG_TAG, "ExecutionException : " + e.getMessage());
                 } finally {
                     Log.d(LOG_TAG, "Get packetlog task finished");
                     return new Object();
