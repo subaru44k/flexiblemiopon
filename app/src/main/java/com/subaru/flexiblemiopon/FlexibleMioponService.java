@@ -8,25 +8,31 @@ import android.os.Binder;
 import android.os.IBinder;
 import android.util.Log;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.subaru.flexiblemiopon.data.AccessToken;
 import com.subaru.flexiblemiopon.data.CouponInfo;
 import com.subaru.flexiblemiopon.data.PacketLogInfo;
 import com.subaru.flexiblemiopon.data.TokenIO;
 import com.subaru.flexiblemiopon.request.Command;
-import com.subaru.flexiblemiopon.request.CouponChangeCommand;
 import com.subaru.flexiblemiopon.request.CouponStatusCheckCommand;
 import com.subaru.flexiblemiopon.request.CouponUsageCheckCommand;
 import com.subaru.flexiblemiopon.util.ResponseParser;
+import com.subaru.flexiblemiopon.util.task.SimpleTaskExecutor;
+import com.subaru.flexiblemiopon.util.task.TaskExecutor;
+
+import static com.subaru.flexiblemiopon.Constant.DEVELOPER_ID;
+import static com.subaru.flexiblemiopon.Constant.CALLBACK_URI;
+import static com.subaru.flexiblemiopon.Constant.REDIRECT_URI_BASE;
 
 import org.json.JSONException;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Future;
 
 public class FlexibleMioponService extends Service {
 
@@ -39,14 +45,13 @@ public class FlexibleMioponService extends Service {
     }
 
     private final String LOG_TAG = "FlexibleMioponService";
-    private static final String CALLBACK_URI = "com.subaru.flexiblemiopon://callback";
-    private static final String DEVELOPER_ID = "lNuh3hfMUS52SCTHv4O";
-    private static final String REDIRECT_URI_BASE = "https://api.iijmio.jp/mobile/d/v1/authorization/?response_type=token&client_id=lNuh3hfMUS52SCTHv4O&redirect_uri=com.subaru.flexiblemiopon://callback";
 
     private OnViewOperationListener mDebugListener;
     private OnSwitchListener mSwitchListener;
     CouponInfo mCouponInfo;
     PacketLogInfo mPacketLogInfo;
+    private TaskExecutor mTaskExecutor;
+    private Toast mToast;
 
     public void setOnDebugOutputListener(OnViewOperationListener listener) {
         mDebugListener = listener;
@@ -145,11 +150,28 @@ public class FlexibleMioponService extends Service {
         for (AccessToken eachToken : tokenMap.values()) {
             token = eachToken;
         }
-        Command couponChangeCommand = new CouponChangeCommand(DEVELOPER_ID, token, mCouponInfo, isCouponUse);
-        couponChangeCommand.executeAsync(new Command.OnCommandExecutedListener() {
+        mTaskExecutor.executeCouponChange(mCouponInfo, isCouponUse, token, new TaskExecutor.OnCouponChangedListener() {
             @Override
-            public void onCommandExecuted(String response) {
-                // TODO check response code and change the switch. If it failed, set timer to execute later.
+            public void onCouponChanged() {
+                // show toast or something?
+                mToast.setText("coupon changed successfully");
+                mToast.show();
+            }
+
+            @Override
+            public void onCouponChangeFailed(String reason) {
+                Log.w(LOG_TAG, "Coupon change failed : " + reason);
+            }
+
+            @Override
+            public void onAccessTokenInvalid() {
+                Log.w(LOG_TAG, "Invalid token");
+            }
+
+            @Override
+            public void onNotifyRetryLater() {
+                mToast.setText("Coupon change rejected by IIJ side. I try it later, so just a moment please.");
+                mToast.show();
             }
         });
     }
@@ -170,7 +192,7 @@ public class FlexibleMioponService extends Service {
         }
         Command command = new CouponStatusCheckCommand(DEVELOPER_ID, token);
 
-        String response = command.executeAsync(new Command.OnCommandExecutedListener() {
+        Future<String> response = command.executeAsync(new Command.OnCommandExecutedListener() {
             @Override
             public void onCommandExecuted(String response) {
                 Log.d(LOG_TAG, response);
@@ -211,7 +233,7 @@ public class FlexibleMioponService extends Service {
         }
         Command command = new CouponUsageCheckCommand(DEVELOPER_ID, token);
 
-        String response = command.executeAsync(new Command.OnCommandExecutedListener() {
+        Future<String> response = command.executeAsync(new Command.OnCommandExecutedListener() {
             @Override
             public void onCommandExecuted(String response) {
                 Log.d(LOG_TAG, response);
@@ -257,6 +279,8 @@ public class FlexibleMioponService extends Service {
 
     @Override
     public void onCreate() {
+        mTaskExecutor = new SimpleTaskExecutor();
+        mToast = Toast.makeText(this, "Toast", Toast.LENGTH_LONG);
         super.onCreate();
     }
 

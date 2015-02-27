@@ -1,7 +1,9 @@
 package com.subaru.flexiblemiopon.request;
 
+import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 import com.subaru.flexiblemiopon.data.AccessToken;
 
@@ -20,15 +22,16 @@ abstract public class Command {
 
     ExecutorService pool = Executors.newCachedThreadPool();
 
-    public String executeAsync(final OnCommandExecutedListener listener) {
-        pool.submit(new Runnable() {
+    public Future<String> executeAsync(final OnCommandExecutedListener listener) {
+        Future<String> future = pool.submit(new Callable<String>() {
             @Override
-            public void run() {
+            public String call() throws Exception {
                 String response = execute();
                 listener.onCommandExecuted(response);
+                return response;
             }
         });
-        return "";
+        return future;
     }
 
     abstract protected String execute();

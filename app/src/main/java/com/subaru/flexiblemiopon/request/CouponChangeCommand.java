@@ -53,21 +53,12 @@ public class CouponChangeCommand extends Command {
         }
 
         DefaultHttpClient httpClient = new DefaultHttpClient();
+        String result = null;
         try {
-            String result = httpClient.execute(putRequest, new ResponseHandler<String>() {
+            result = httpClient.execute(putRequest, new ResponseHandler<String>() {
                 @Override
                 public String handleResponse(HttpResponse httpResponse) throws ClientProtocolException, IOException {
-                    switch(httpResponse.getStatusLine().getStatusCode()){
-                        case HttpStatus.SC_OK:
-                            System.out.println(HttpStatus.SC_OK);
-                            return EntityUtils.toString(httpResponse.getEntity(), "UTF-8");
-                        case HttpStatus.SC_NOT_FOUND:
-                            System.out.println(HttpStatus.SC_NOT_FOUND);
-                            return "404";
-                        default:
-                            System.out.println("unknown");
-                            return "unknown";
-                    }
+                    return Integer.toString(httpResponse.getStatusLine().getStatusCode());
                 }
             });
             Log.d(LOG_TAG, "http put result : " + result);
@@ -75,6 +66,6 @@ public class CouponChangeCommand extends Command {
             e.printStackTrace();
         }
 
-        return null;
+        return result;
     }
 }

@@ -24,7 +24,9 @@ import com.subaru.flexiblemiopon.view.PlusOneFragment;
 import com.viewpagerindicator.CirclePageIndicator;
 
 
-public class FlexibleMioponActivity extends ActionBarActivity implements ItemFragment.OnFragmentInteractionListener, PlusOneFragment.OnFragmentInteractionListener, MainFragment.OnFragmentInteractionListener, FlexibleMioponService.OnViewOperationListener, FlexibleMioponService.OnSwitchListener{
+public class FlexibleMioponActivity extends ActionBarActivity
+        implements ItemFragment.OnFragmentInteractionListener, PlusOneFragment.OnFragmentInteractionListener,
+        MainFragment.OnFragmentInteractionListener, FlexibleMioponService.OnViewOperationListener, FlexibleMioponService.OnSwitchListener {
 
     private final String LOG_TAG = "FlexibleMioponActivity";
 
@@ -66,8 +68,8 @@ public class FlexibleMioponActivity extends ActionBarActivity implements ItemFra
         ViewPager viewPager = (ViewPager) findViewById(R.id.pager);
         mFragmentPagerAdapter = new FlexibleFragmentPagerAdaper(getSupportFragmentManager());
         viewPager.setAdapter(mFragmentPagerAdapter);
-//        // set initial fragment
-//        viewPager.setCurrentItem(1);
+        // set initial fragment
+        viewPager.setCurrentItem(1);
 
         CirclePageIndicator circleIndicator = (CirclePageIndicator) findViewById(R.id.titles);
         circleIndicator.setViewPager(viewPager);
