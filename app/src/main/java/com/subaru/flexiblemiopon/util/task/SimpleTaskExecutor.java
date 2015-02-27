@@ -6,9 +6,12 @@ import com.subaru.flexiblemiopon.data.AccessToken;
 import com.subaru.flexiblemiopon.data.CouponInfo;
 import com.subaru.flexiblemiopon.request.Command;
 import com.subaru.flexiblemiopon.request.CouponChangeCommand;
+import com.subaru.flexiblemiopon.request.CouponStatusCheckCommand;
+import com.subaru.flexiblemiopon.util.ResponseParser;
+
+import org.json.JSONException;
 
 import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -23,6 +26,92 @@ public class SimpleTaskExecutor implements TaskExecutor {
     private TaskManager mManager = new SimpleTaskManager();
     ExecutorService mWorkerThread = Executors.newCachedThreadPool();
     private Future<Object> mCancelFuture;
+
+    @Override
+    public void getCouponInfo(final CouponInfo couponInfo, final AccessToken token, final OnCouponInfoObtainedListener listener) {
+        if (mCancelFuture != null) {
+            mCancelFuture.cancel(true);
+        }
+        mCancelFuture = mWorkerThread.submit(new Callable<Object>() {
+            @Override
+            public Object call() throws Exception {
+                try {
+                Future<String> future;
+
+                while(true) {
+                    Command command = new CouponStatusCheckCommand(DEVELOPER_ID, token);
+                    future = command.executeAsync(new Command.OnCommandExecutedListener() {
+                        @Override
+                        public void onCommandExecuted(String status, String response) {
+                            if (status == null || "".equals(status)) {
+                                Log.w(LOG_TAG, "Status is null or blank");
+                                return;
+                            }
+                            if (response == null || "".equals(response)) {
+                                Log.w(LOG_TAG, "Response is null or brank");
+                                return;
+                            }
+                            switch (status) {
+                                case "200":
+                                    Log.d(LOG_TAG, "Get coupon info correctly.");
+                                    try {
+                                        CouponInfo couponInfo = ResponseParser.parseCouponInfoResponse(response);
+                                        listener.onCouponInfoObtained(couponInfo);
+                                    } catch (JSONException e) {
+                                        e.printStackTrace();
+                                        listener.onCouponChangeFailed("Parsing response string failed");
+                                        Log.w(LOG_TAG, response);
+                                    }
+                                    break;
+                                case "403":
+                                    Log.w(LOG_TAG, "Invalid header or you have to authorize again");
+                                    listener.onCouponChangeFailed("Invalid header or you have to authorize again");
+                                    break;
+                                case "405":
+                                    Log.w(LOG_TAG, "Invalid Http method. Please check Http PUT is used.");
+                                    listener.onCouponChangeFailed("Invalid Http method. Please check Http GET is used.");
+                                    break;
+                                case "413":
+                                    Log.w(LOG_TAG, "Request is too large");
+                                    listener.onCouponChangeFailed("Too large request");
+                                    break;
+                                case "429":
+                                    Log.w(LOG_TAG, "Too many requests:");
+                                    Log.d(LOG_TAG, response);
+                                    listener.onNotifyRetryLater();
+                                    break;
+                                case "500":
+                                    Log.w(LOG_TAG, "Error in server side");
+                                    listener.onCouponChangeFailed("Error in server side");
+                                    break;
+                                case "503":
+                                    Log.w(LOG_TAG, "Server is in maintenance");
+                                    listener.onCouponChangeFailed("Server is in maintenance");
+                                    break;
+                                default:
+                                    Log.w(LOG_TAG, "Unexpected response in getting coupon info. Ignore this task.");
+                                    Log.w(LOG_TAG, response);
+                            }
+                        }
+                    });
+                    mManager.notifyCouponInfoCheckInvoked();
+
+                    String response = future.get();
+                    if (!response.equals("429")) {
+                        break;
+                    }
+
+                    mManager.blockUntilCouponInfoCheckAvailable();
+                }
+                } catch (InterruptedException e) {
+                    Log.d(LOG_TAG, "Get coupon info task cancelled");
+                } finally {
+                    Log.d(LOG_TAG, "Get coupon info task finished");
+                    return new Object();
+                }
+            }
+        });
+    }
 
     @Override
     public void executeCouponChange(final CouponInfo couponInfo, final boolean isCouponUse, final AccessToken token, final OnCouponChangedListener listener) {
@@ -40,12 +129,12 @@ public class SimpleTaskExecutor implements TaskExecutor {
                         Command couponChangeCommand = new CouponChangeCommand(DEVELOPER_ID, token, couponInfo, isCouponUse);
                         future = couponChangeCommand.executeAsync(new Command.OnCommandExecutedListener() {
                             @Override
-                            public void onCommandExecuted(String response) {
-                                if (response == null) {
-                                    Log.w(LOG_TAG, "Response is null");
+                            public void onCommandExecuted(String status, String response) {
+                                if (status == null || "".equals(status)) {
+                                    Log.w(LOG_TAG, "Response is null or blank");
                                     return;
                                 }
-                                switch (response) {
+                                switch (status) {
                                     case "200":
                                         Log.d(LOG_TAG, "Coupon changed correctly.");
                                         listener.onCouponChanged();
@@ -57,13 +146,17 @@ public class SimpleTaskExecutor implements TaskExecutor {
                                     case "403":
                                         Log.w(LOG_TAG, "Invalid header or you have to authorize again");
                                         listener.onCouponChangeFailed("Invalid header or you have to authorize again");
+                                        //TODO implement here
+                                        listener.onAccessTokenInvalid();
                                         break;
                                     case "405":
                                         Log.w(LOG_TAG, "Invalid Http method. Please check Http PUT is used.");
                                         listener.onCouponChangeFailed("Invalid Http method. Please check Http PUT is used.");
                                         break;
                                     case "429":
-                                        Log.w(LOG_TAG, "Too many requests");
+                                        Log.w(LOG_TAG, "Too many requests:");
+                                        Log.d(LOG_TAG, status);
+                                        listener.onNotifyRetryLater();
                                         break;
                                     case "500":
                                         Log.w(LOG_TAG, "Error in server side");
@@ -75,7 +168,7 @@ public class SimpleTaskExecutor implements TaskExecutor {
                                         break;
                                     default:
                                         Log.w(LOG_TAG, "Unexpected response in coupon change. Ignore this.");
-                                        Log.w(LOG_TAG, response);
+                                        Log.w(LOG_TAG, status);
                                 }
                                 return;
                             }
@@ -93,8 +186,6 @@ public class SimpleTaskExecutor implements TaskExecutor {
                     }
                 } catch (InterruptedException e) {
                     Log.d(LOG_TAG, "Coupon change task cancelled");
-                } catch (ExecutionException e) {
-                    e.printStackTrace();
                 } finally {
                     Log.d(LOG_TAG, "Coupon change task finished");
                     return new Object();

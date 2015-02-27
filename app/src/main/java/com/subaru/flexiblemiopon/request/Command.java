@@ -27,7 +27,8 @@ abstract public class Command {
             @Override
             public String call() throws Exception {
                 String response = execute();
-                listener.onCommandExecuted(response);
+                String[] responseArray = response.split(":::");
+                listener.onCommandExecuted(responseArray[0], responseArray[1]);
                 return response;
             }
         });
@@ -37,6 +38,6 @@ abstract public class Command {
     abstract protected String execute();
 
     abstract public static class OnCommandExecutedListener {
-        public abstract void onCommandExecuted(String response);
+        public abstract void onCommandExecuted(String status, String response);
     }
 }

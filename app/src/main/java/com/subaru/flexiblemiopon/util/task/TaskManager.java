@@ -6,8 +6,8 @@ package com.subaru.flexiblemiopon.util.task;
 public interface TaskManager {
     void notifyCouponInfoCheckInvoked();
     void notifyCouponChangeInvoked();
-    void notifyRemainingCouponCheckInvoked();
-    void blockUntilCouponInfoCheckAvailable();
+    void notifyPacketLogCheckInvoked();
+    void blockUntilCouponInfoCheckAvailable() throws InterruptedException;
     void blockUntilCouponChangeAvailable() throws InterruptedException;
-    void blockUntilRemainingCouponCheckAvailable();
+    void blockUntilPacketLogCheckAvailable() throws InterruptedException;
 }

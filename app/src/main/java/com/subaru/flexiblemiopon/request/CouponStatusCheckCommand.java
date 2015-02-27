@@ -62,6 +62,6 @@ public class CouponStatusCheckCommand extends Command {
         // shutdown client
         client.getConnectionManager().shutdown();
 
-        return response;
+        return Integer.toString(statusCode) + ":::" + response;
     }
 }

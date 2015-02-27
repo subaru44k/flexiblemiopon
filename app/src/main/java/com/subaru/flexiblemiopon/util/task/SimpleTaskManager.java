@@ -11,26 +11,27 @@ public class SimpleTaskManager implements TaskManager{
 
     @Override
     public void notifyCouponChangeInvoked() {
+        // nothing to do
+    }
+
+    @Override
+    public void notifyPacketLogCheckInvoked() {
 
     }
 
     @Override
-    public void notifyRemainingCouponCheckInvoked() {
-
+    public void blockUntilCouponInfoCheckAvailable() throws InterruptedException {
+        Thread.sleep(10000);
     }
 
     @Override
-    public void blockUntilCouponInfoCheckAvailable(){
-
-    }
-
-    @Override
-    public void blockUntilCouponChangeAvailable() throws InterruptedException  {
+    public void blockUntilCouponChangeAvailable() throws InterruptedException {
         Thread.sleep(30000);
     }
 
     @Override
-    public void blockUntilRemainingCouponCheckAvailable() {
+    public void blockUntilPacketLogCheckAvailable() throws InterruptedException {
+        Thread.sleep(10000);
 
     }
 }

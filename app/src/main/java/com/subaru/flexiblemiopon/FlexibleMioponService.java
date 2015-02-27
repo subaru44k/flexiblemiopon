@@ -17,8 +17,7 @@ import com.subaru.flexiblemiopon.data.CouponInfo;
 import com.subaru.flexiblemiopon.data.PacketLogInfo;
 import com.subaru.flexiblemiopon.data.TokenIO;
 import com.subaru.flexiblemiopon.request.Command;
-import com.subaru.flexiblemiopon.request.CouponStatusCheckCommand;
-import com.subaru.flexiblemiopon.request.CouponUsageCheckCommand;
+import com.subaru.flexiblemiopon.request.PacketLogCheckCommand;
 import com.subaru.flexiblemiopon.util.ResponseParser;
 import com.subaru.flexiblemiopon.util.task.SimpleTaskExecutor;
 import com.subaru.flexiblemiopon.util.task.TaskExecutor;
@@ -71,7 +70,7 @@ public class FlexibleMioponService extends Service {
             redirectForAuthentication();
         } else {
             retrieveCouponInfo(tokenMap);
-            checkCouponUsage(tokenMap);
+            checkPacketLog(tokenMap);
         }
     }
 
@@ -143,6 +142,10 @@ public class FlexibleMioponService extends Service {
         }
     }
 
+    /**
+     * Change coupon On/Off
+     * @param isCouponUse true -> On, false -> Off
+     */
     public void changeCoupon(boolean isCouponUse) {
         Map<String, AccessToken> tokenMap = readExistingToken();
 
@@ -190,38 +193,39 @@ public class FlexibleMioponService extends Service {
         for (AccessToken eachToken : tokenMap.values()) {
             token = eachToken;
         }
-        Command command = new CouponStatusCheckCommand(DEVELOPER_ID, token);
-
-        Future<String> response = command.executeAsync(new Command.OnCommandExecutedListener() {
+        mTaskExecutor.getCouponInfo(mCouponInfo, token, new TaskExecutor.OnCouponInfoObtainedListener() {
             @Override
-            public void onCommandExecuted(String response) {
-                Log.d(LOG_TAG, response);
-
-                try {
-                    mCouponInfo = ResponseParser.parseCouponInfoResponse(response);
-                    mSwitchListener.onCouponStatusObtained(mCouponInfo.getHdoInfoList().get(0).isCouponUsing());
-                    TextView view = new TextView(getApplicationContext());
-                    int couponRemaining = 0;
-                    for (CouponInfo.Coupon coupon : mCouponInfo.getCouponList()) {
+            public void onCouponInfoObtained(CouponInfo couponInfo) {
+                mCouponInfo = couponInfo;
+                mSwitchListener.onCouponStatusObtained(mCouponInfo.getHdoInfoList().get(0).isCouponUsing());
+                TextView view = new TextView(getApplicationContext());
+                int couponRemaining = 0;
+                for (CouponInfo.Coupon coupon : mCouponInfo.getCouponList()) {
+                    couponRemaining += Integer.parseInt(coupon.getVolume());
+                }
+                for (CouponInfo.HdoInfo hdoInfo : mCouponInfo.getHdoInfoList()) {
+                    for (CouponInfo.Coupon coupon : hdoInfo.getCouponList()) {
                         couponRemaining += Integer.parseInt(coupon.getVolume());
                     }
-                    for (CouponInfo.HdoInfo hdoInfo : mCouponInfo.getHdoInfoList()) {
-                        for (CouponInfo.Coupon coupon : hdoInfo.getCouponList()) {
-                            couponRemaining += Integer.parseInt(coupon.getVolume());
-                        }
-                    }
-                    view.setText(Integer.toString(couponRemaining));
-                    view.setBackgroundColor(Color.GREEN);
-                    mDebugListener.onCouponViewChange(view, 0);
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                    return;
                 }
+                view.setText(Integer.toString(couponRemaining));
+                view.setBackgroundColor(Color.GREEN);
+                mDebugListener.onCouponViewChange(view, 0);
+            }
+
+            @Override
+            public void onCouponChangeFailed(String reason) {
+
+            }
+
+            @Override
+            public void onNotifyRetryLater() {
+
             }
         });
     }
 
-    public void checkCouponUsage(Map<String, AccessToken> tokenMap) {
+    public void checkPacketLog(Map<String, AccessToken> tokenMap) {
         if (tokenMap == null) {
             return;
         }
@@ -231,11 +235,11 @@ public class FlexibleMioponService extends Service {
         for (AccessToken eachToken : tokenMap.values()) {
             token = eachToken;
         }
-        Command command = new CouponUsageCheckCommand(DEVELOPER_ID, token);
+        Command command = new PacketLogCheckCommand(DEVELOPER_ID, token);
 
         Future<String> response = command.executeAsync(new Command.OnCommandExecutedListener() {
             @Override
-            public void onCommandExecuted(String response) {
+            public void onCommandExecuted(String status, String response) {
                 Log.d(LOG_TAG, response);
                 try {
                     mPacketLogInfo = ResponseParser.parsePacketLogInfo(response);
