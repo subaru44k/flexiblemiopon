@@ -152,12 +152,17 @@ public class FlexibleMioponActivity extends ActionBarActivity
     }
 
     @Override
-    public void onCouponStatusObtained(boolean isEnabled) {
-        Fragment fragment = mFragmentPagerAdapter.getFragment(1);
-        if (fragment instanceof MainFragment) {
-            MainFragment mainFragment = (MainFragment) fragment;
-            mainFragment.setSwitch(isEnabled);
-        }
+    public void onCouponStatusObtained(final boolean isEnabled) {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                Fragment fragment = mFragmentPagerAdapter.getFragment(1);
+                if (fragment instanceof MainFragment) {
+                    MainFragment mainFragment = (MainFragment) fragment;
+                    mainFragment.setSwitch(isEnabled);
+                }
+            }
+        });
     }
 
     @Override

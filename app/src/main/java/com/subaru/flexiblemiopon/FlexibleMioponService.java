@@ -48,7 +48,6 @@ public class FlexibleMioponService extends Service {
     private OnViewOperationListener mDebugListener;
     private OnSwitchListener mSwitchListener;
     CouponInfo mCouponInfo;
-    PacketLogInfo mPacketLogInfo;
     private TaskExecutor mTaskExecutor;
     private Toast mToast;
 
@@ -142,6 +141,15 @@ public class FlexibleMioponService extends Service {
         }
     }
 
+    private AccessToken getAccessToken(Map<String, AccessToken> tokenMap) {
+        // FIXME if multiple token exists, required to be changed here.
+        AccessToken token = null;
+        for (AccessToken eachToken : tokenMap.values()) {
+            token = eachToken;
+        }
+        return token;
+    }
+
     /**
      * Change coupon On/Off
      * @param isCouponUse true -> On, false -> Off
@@ -149,10 +157,7 @@ public class FlexibleMioponService extends Service {
     public void changeCoupon(boolean isCouponUse) {
         Map<String, AccessToken> tokenMap = readExistingToken();
 
-        AccessToken token = null;
-        for (AccessToken eachToken : tokenMap.values()) {
-            token = eachToken;
-        }
+        AccessToken token = getAccessToken(tokenMap);
         mTaskExecutor.executeCouponChange(mCouponInfo, isCouponUse, token, new TaskExecutor.OnCouponChangedListener() {
             @Override
             public void onCouponChanged() {
@@ -187,13 +192,8 @@ public class FlexibleMioponService extends Service {
         if (tokenMap == null) {
             return;
         }
-
-        // FIXME if multiple token exists, required to be changed here.
-        AccessToken token = null;
-        for (AccessToken eachToken : tokenMap.values()) {
-            token = eachToken;
-        }
-        mTaskExecutor.getCouponInfo(mCouponInfo, token, new TaskExecutor.OnCouponInfoObtainedListener() {
+        AccessToken token = getAccessToken(tokenMap);
+        mTaskExecutor.getCouponInfo(token, new TaskExecutor.OnCouponInfoObtainedListener() {
             @Override
             public void onCouponInfoObtained(CouponInfo couponInfo) {
                 mCouponInfo = couponInfo;
@@ -214,7 +214,7 @@ public class FlexibleMioponService extends Service {
             }
 
             @Override
-            public void onCouponChangeFailed(String reason) {
+            public void onCouponInfoFailedToObtain(String reason) {
 
             }
 
@@ -229,45 +229,41 @@ public class FlexibleMioponService extends Service {
         if (tokenMap == null) {
             return;
         }
-
-        // FIXME if multiple token exists, required to be changed here.
-        AccessToken token = null;
-        for (AccessToken eachToken : tokenMap.values()) {
-            token = eachToken;
-        }
-        Command command = new PacketLogCheckCommand(DEVELOPER_ID, token);
-
-        Future<String> response = command.executeAsync(new Command.OnCommandExecutedListener() {
+        AccessToken token = getAccessToken(tokenMap);
+        mTaskExecutor.getPacketLog(mCouponInfo, token, new TaskExecutor.OnPacketLogObtainedListener() {
             @Override
-            public void onCommandExecuted(String status, String response) {
-                Log.d(LOG_TAG, response);
-                try {
-                    mPacketLogInfo = ResponseParser.parsePacketLogInfo(response);
+            public void onPacketLogInfoObtained(PacketLogInfo packetLogInfo) {
+                List<PacketLogInfo.HdoInfo.PacketLog> packetLogList = packetLogInfo.getHdoInfoList().get(0).getPacketLogList();
 
-                    List<PacketLogInfo.HdoInfo.PacketLog> packetLogList = mPacketLogInfo.getHdoInfoList().get(0).getPacketLogList();
-                    RelativeLayout layout = new RelativeLayout(getApplicationContext());
-                    RelativeLayout.LayoutParams params;
-                    int i=0;
-                    for (PacketLogInfo.HdoInfo.PacketLog info : packetLogList) {
-                        i++;
-                        TextView withCouponView = new TextView(getApplicationContext());
-                        withCouponView.setText(info.getWithCoupon());
-                        withCouponView.setBackgroundColor(Color.BLUE);
-                        mDebugListener.onCouponViewChange(withCouponView, i);
+                RelativeLayout layout = new RelativeLayout(getApplicationContext());
+                RelativeLayout.LayoutParams params;
 
-//                        i++;
-//                        TextView withoutCouponView = new TextView(getApplicationContext());
-//                        withoutCouponView.setText(info.getWithoutCoupon());
-//                        withoutCouponView.setBackgroundColor(Color.GRAY);
-//                        mDebugListener.onCouponViewChange(withoutCouponView, i);
-
-                    }
-
-                } catch (JSONException e) {
-                    e.printStackTrace();
+                int i=0;
+                for (PacketLogInfo.HdoInfo.PacketLog info : packetLogList) {
+                    i++;
+                    TextView withCouponView = new TextView(getApplicationContext());
+                    withCouponView.setText(info.getWithCoupon());
+                    withCouponView.setBackgroundColor(Color.BLUE);
+                    mDebugListener.onCouponViewChange(withCouponView, i);
                 }
             }
+
+            @Override
+            public void onPacketLogFailedToObtain(String reason) {
+
+            }
+
+            @Override
+            public void onAccessTokenInvalid() {
+
+            }
+
+            @Override
+            public void onNotifyRetryLater() {
+
+            }
         });
+
     }
 
     private Map<String, String> getFragmentParameterMap(Uri uri) {
