@@ -39,6 +39,7 @@ public class FlexibleMioponService extends Service {
 
     private OnViewOperationListener mDebugListener;
     private OnSwitchListener mSwitchListener;
+    private OnPacketLogListener mPacketLogListener;
     CouponInfo mCouponInfo;
     private TaskExecutor mTaskExecutor;
     private Toast mToast;
@@ -49,6 +50,10 @@ public class FlexibleMioponService extends Service {
 
     public void setOnSwitchListener(OnSwitchListener listener) {
         mSwitchListener = listener;
+    }
+
+    public void setOnPacketLogListener(OnPacketLogListener listener) {
+        mPacketLogListener = listener;
     }
 
     /**
@@ -194,7 +199,6 @@ public class FlexibleMioponService extends Service {
             public void onCouponInfoObtained(CouponInfo couponInfo) {
                 mCouponInfo = couponInfo;
                 mSwitchListener.onCouponStatusObtained(mCouponInfo.getHdoInfoList().get(0).isCouponUsing());
-                TextView view = new TextView(getApplicationContext());
                 int couponRemaining = 0;
                 for (CouponInfo.Coupon coupon : mCouponInfo.getCouponList()) {
                     couponRemaining += Integer.parseInt(coupon.getVolume());
@@ -204,9 +208,7 @@ public class FlexibleMioponService extends Service {
                         couponRemaining += Integer.parseInt(coupon.getVolume());
                     }
                 }
-                view.setText(Integer.toString(couponRemaining));
-                view.setBackgroundColor(Color.GREEN);
-                mDebugListener.onCouponViewChange(view, 0);
+                mDebugListener.onCouponViewChange(couponRemaining);
             }
 
             @Override
@@ -231,19 +233,8 @@ public class FlexibleMioponService extends Service {
         mTaskExecutor.getPacketLog(token, new TaskExecutor.OnPacketLogObtainedListener() {
             @Override
             public void onPacketLogInfoObtained(PacketLogInfo packetLogInfo) {
-                List<PacketLogInfo.HdoInfo.PacketLog> packetLogList = packetLogInfo.getHdoInfoList().get(0).getPacketLogList();
+                mPacketLogListener.onPacketLogObtained(packetLogInfo);
 
-                RelativeLayout layout = new RelativeLayout(getApplicationContext());
-                RelativeLayout.LayoutParams params;
-
-                int i=0;
-                for (PacketLogInfo.HdoInfo.PacketLog info : packetLogList) {
-                    i++;
-                    TextView withCouponView = new TextView(getApplicationContext());
-                    withCouponView.setText(info.getWithCoupon());
-                    withCouponView.setBackgroundColor(Color.BLUE);
-                    mDebugListener.onCouponViewChange(withCouponView, i);
-                }
             }
 
             @Override
@@ -308,10 +299,14 @@ public class FlexibleMioponService extends Service {
 
     interface OnViewOperationListener {
         public void onDebugRequest(String str);
-        public void onCouponViewChange(View view, int i);
+        public void onCouponViewChange(int couponRemaining);
     }
 
     interface OnSwitchListener {
         public void onCouponStatusObtained(boolean isEnabled);
+    }
+
+    interface OnPacketLogListener {
+        public void onPacketLogObtained(PacketLogInfo packetLogInfo);
     }
 }

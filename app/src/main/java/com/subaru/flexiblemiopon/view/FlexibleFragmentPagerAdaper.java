@@ -25,7 +25,7 @@ public class FlexibleFragmentPagerAdaper extends FragmentPagerAdapter {
     public Fragment getItem(int position) {
         switch (position) {
             case 0:
-                return new PlusOneFragment();
+                return new PacketLogFragment();
             case 1:
                 return new MainFragment();
             case 2:

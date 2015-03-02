@@ -4,7 +4,6 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
-import android.graphics.Color;
 import android.net.Uri;
 import android.os.IBinder;
 import android.support.v4.app.Fragment;
@@ -12,21 +11,20 @@ import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.View;
-import android.widget.Switch;
 import android.widget.TextView;
 
 import com.subaru.flexiblemiopon.data.AccessToken;
+import com.subaru.flexiblemiopon.data.PacketLogInfo;
 import com.subaru.flexiblemiopon.view.FlexibleFragmentPagerAdaper;
 import com.subaru.flexiblemiopon.view.ItemFragment;
 import com.subaru.flexiblemiopon.view.MainFragment;
-import com.subaru.flexiblemiopon.view.PlusOneFragment;
+import com.subaru.flexiblemiopon.view.PacketLogFragment;
 import com.viewpagerindicator.CirclePageIndicator;
 
 
 public class FlexibleMioponActivity extends ActionBarActivity
-        implements ItemFragment.OnFragmentInteractionListener, PlusOneFragment.OnFragmentInteractionListener,
-        MainFragment.OnFragmentInteractionListener, FlexibleMioponService.OnViewOperationListener, FlexibleMioponService.OnSwitchListener {
+        implements ItemFragment.OnFragmentInteractionListener, PacketLogFragment.OnFragmentInteractionListener, MainFragment.OnFragmentInteractionListener,
+        FlexibleMioponService.OnViewOperationListener, FlexibleMioponService.OnSwitchListener, FlexibleMioponService.OnPacketLogListener {
 
     private final String LOG_TAG = "FlexibleMioponActivity";
 
@@ -105,7 +103,7 @@ public class FlexibleMioponActivity extends ActionBarActivity
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                TextView debugView = (TextView) findViewById(R.id.debugText);
+                TextView debugView = (TextView) findViewById(R.id.remainingCoupon);
                 debugView.setText(text);
             }
         });
@@ -114,6 +112,7 @@ public class FlexibleMioponActivity extends ActionBarActivity
     private void setListener() {
         mService.setOnDebugOutputListener(this);
         mService.setOnSwitchListener(this);
+        mService.setOnPacketLogListener(this);
     }
 
     @Override
@@ -122,14 +121,14 @@ public class FlexibleMioponActivity extends ActionBarActivity
     }
 
     @Override
-    public void onCouponViewChange(final View view, final int i) {
+    public void onCouponViewChange(final int couponRemaining) {
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 Fragment fragment = mFragmentPagerAdapter.getFragment(1);
                 if (fragment instanceof MainFragment) {
                     MainFragment mainFragment = (MainFragment) fragment;
-                    mainFragment.setView(view, i);
+                    mainFragment.setRemainingPacket(couponRemaining);
                 }
             }
         });
@@ -173,5 +172,19 @@ public class FlexibleMioponActivity extends ActionBarActivity
     @Override
     public void onFragmentInteraction(String str) {
         mService.changeCoupon(Boolean.parseBoolean(str));
+    }
+
+    @Override
+    public void onPacketLogObtained(final PacketLogInfo packetLogInfo) {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                Fragment fragment = mFragmentPagerAdapter.getFragment(0);
+                if (fragment instanceof PacketLogFragment) {
+                    PacketLogFragment packetLogFragment = (PacketLogFragment) fragment;
+                    packetLogFragment.setPacketLog(packetLogInfo);
+                }
+            }
+        });
     }
 }

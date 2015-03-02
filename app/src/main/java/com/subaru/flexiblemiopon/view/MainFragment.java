@@ -1,15 +1,14 @@
 package com.subaru.flexiblemiopon.view;
 
 import android.app.Activity;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CompoundButton;
-import android.widget.RelativeLayout;
 import android.widget.Switch;
+import android.widget.TextView;
 
 import com.subaru.flexiblemiopon.R;
 
@@ -71,12 +70,10 @@ public class MainFragment extends Fragment {
         return inflater.inflate(R.layout.fragment_main, container, false);
     }
 
-    public void setView(final View view, final int i) {
-        RelativeLayout remainingCouponLayout = (RelativeLayout) getActivity().findViewById(R.id.remainingCouponLayout);
-        RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-        params.addRule(RelativeLayout.ALIGN_PARENT_TOP, RelativeLayout.TRUE);
-        params.topMargin = i * 40;
-        remainingCouponLayout.addView(view, params);
+    public void setRemainingPacket(final int couponRemaining) {
+        TextView remainingCouponView = (TextView) getActivity().findViewById(R.id.remainingCoupon);
+        remainingCouponView.setText(Integer.toString(couponRemaining) + " " + "MB");
+
     }
 
     public void setSwitch(final boolean isEnabled) {
