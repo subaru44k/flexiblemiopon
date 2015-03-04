@@ -10,6 +10,8 @@ import android.text.Layout;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
 
@@ -20,6 +22,7 @@ import com.subaru.flexiblemiopon.data.PacketLogInfo;
 
 import org.achartengine.ChartFactory;
 import org.achartengine.GraphicalView;
+import org.achartengine.chart.PointStyle;
 import org.achartengine.model.XYMultipleSeriesDataset;
 import org.achartengine.model.XYSeries;
 import org.achartengine.renderer.XYMultipleSeriesRenderer;
@@ -45,14 +48,7 @@ public class PacketLogFragment extends Fragment {
     private String mParam1;
     private String mParam2;
 
-    // The URL to +1.  Must be a valid URL.
-    private final String PLUS_ONE_URL = "http://developer.android.com";
-
-    // The request code must be 0 or greater.
-    private static final int PLUS_ONE_REQUEST_CODE = 0;
-
-    private PlusOneButton mPlusOneButton;
-
+    private PacketLogInfo mPacketLogInfo;
     private OnFragmentInteractionListener mListener;
 
     /**
@@ -92,41 +88,72 @@ public class PacketLogFragment extends Fragment {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_packetlog, container, false);
 
+        if (mPacketLogInfo == null) {
+            ProgressBar progressBar = (ProgressBar) view.findViewById(R.id.product_image_loading);
+            progressBar.setVisibility(View.VISIBLE);
+        } else {
+            setPacketLog(mPacketLogInfo);
+        }
 
-        return view;
+        return inflater.inflate(R.layout.fragment_packetlog, container, false);
     }
 
     public void setPacketLog(PacketLogInfo packetLogInfo) {
-        List<PacketLogInfo.HdoInfo.PacketLog> packetLogList = packetLogInfo.getHdoInfoList().get(0).getPacketLogList();
+        mPacketLogInfo = packetLogInfo;
+
+        List<PacketLogInfo.HdoInfo.PacketLog> packetLogList = mPacketLogInfo.getHdoInfoList().get(0).getPacketLogList();
 
         XYSeriesRenderer r = new XYSeriesRenderer();
         r.setColor(Color.RED);
+        r.setLineWidth(5);
+        r.setPointStyle(PointStyle.CIRCLE);
         XYSeriesRenderer r2 = new XYSeriesRenderer();
         r2.setColor(Color.BLUE);
-        r2.setLineWidth(3);
+        r2.setLineWidth(5);
+        r2.setPointStyle(PointStyle.CIRCLE);
 
         XYMultipleSeriesRenderer renderer = new XYMultipleSeriesRenderer();
         renderer.addSeriesRenderer(r);
         renderer.addSeriesRenderer(r2);
         renderer.setMarginsColor(Color.WHITE);
         renderer.setPanEnabled(false, false);
-        renderer.setXLabels(30);
-        renderer.setYLabels(30);
+        renderer.setXLabels(0);
+        renderer.setXTitle("Date");
+        renderer.setAxisTitleTextSize(30);
+        renderer.addXTextLabel(20, "2/20");
+        renderer.addXTextLabel(22, "2/22");
+        renderer.addXTextLabel(24, "2/24");
+        renderer.addXTextLabel(26, "2/26");
+        renderer.addXTextLabel(28, "2/28");
+        renderer.addXTextLabel(30, "2/30");
+        renderer.setYLabels(10);
+        renderer.setYTitle("MB");
         renderer.setLegendTextSize(30);
         renderer.setLabelsTextSize(20);
+        renderer.setXAxisMin(20);
+        renderer.setXAxisMax(30);
+        renderer.setChartTitle("Chart title");
+        renderer.setChartTitleTextSize(50);
+//        renderer.setYAxisMin(0);
+//        renderer.setYAxisMax(100);
         renderer.setShowGrid(true);
         renderer.setXLabelsAlign(Paint.Align.RIGHT);
         renderer.setYLabelsAlign(Paint.Align.RIGHT);
+        renderer.setMargins(new int[] { 50, 50, 50, 50 });
 //        renderer.setZoomButtonsVisible(true);
 
         XYMultipleSeriesDataset dataset = new XYMultipleSeriesDataset();
         dataset.addSeries(getWithCouponLine(packetLogList));
         dataset.addSeries(getWithoutCouponLine(packetLogList));
 
+        LayoutInflater.from(getActivity()).inflate(R.layout.fragment_packetlog, null);
         RelativeLayout layout = (RelativeLayout) getActivity().findViewById(R.id.layout);
         GraphicalView graph = ChartFactory.getLineChartView(getActivity(), dataset, renderer);
 
         layout.addView(graph);
+
+        ProgressBar progressBar = (ProgressBar) getActivity().findViewById(R.id.product_image_loading);
+        progressBar.setVisibility(View.GONE);
 
     }
 
@@ -136,6 +163,7 @@ public class PacketLogFragment extends Fragment {
         int i = 0;
         for (PacketLogInfo.HdoInfo.PacketLog info : packetLogList) {
             series.add(i, Integer.parseInt(info.getWithCoupon()));
+            i++;
         }
         return series;
     }
@@ -146,6 +174,7 @@ public class PacketLogFragment extends Fragment {
         int i = 0;
         for (PacketLogInfo.HdoInfo.PacketLog info : packetLogList) {
             series.add(i, Integer.parseInt(info.getWithoutCoupon()));
+            i++;
         }
         return series;
     }

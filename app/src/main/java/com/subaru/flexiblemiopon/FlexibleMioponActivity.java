@@ -66,6 +66,7 @@ public class FlexibleMioponActivity extends ActionBarActivity
         ViewPager viewPager = (ViewPager) findViewById(R.id.pager);
         mFragmentPagerAdapter = new FlexibleFragmentPagerAdaper(getSupportFragmentManager());
         viewPager.setAdapter(mFragmentPagerAdapter);
+        viewPager.setOffscreenPageLimit(3);
         // set initial fragment
         viewPager.setCurrentItem(1);
 
