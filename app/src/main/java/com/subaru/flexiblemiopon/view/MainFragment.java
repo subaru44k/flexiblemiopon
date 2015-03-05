@@ -2,6 +2,7 @@ package com.subaru.flexiblemiopon.view;
 
 import android.app.Activity;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -10,6 +11,10 @@ import android.widget.CompoundButton;
 import android.widget.Switch;
 import android.widget.TextView;
 
+import com.daimajia.swipe.SimpleSwipeListener;
+import com.daimajia.swipe.SwipeLayout;
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdView;
 import com.subaru.flexiblemiopon.R;
 
 /**
@@ -68,6 +73,25 @@ public class MainFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_main, container, false);
+    }
+
+    @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        // adrequest
+        AdView adView = (AdView) getActivity().findViewById(R.id.adView);
+        AdRequest adRequest = new AdRequest.Builder().build();
+        adView.loadAd(adRequest);
+
+        SwipeLayout swipeLayout =  (SwipeLayout) getActivity().findViewById(R.id.swipelayout);
+        swipeLayout.setShowMode(SwipeLayout.ShowMode.LayDown);
+        swipeLayout.setDragEdge(SwipeLayout.DragEdge.Left);
+        swipeLayout.addSwipeListener(new SimpleSwipeListener() {
+            @Override
+            public void onOpen(SwipeLayout layout) {
+                layout.setVisibility(View.GONE);
+            }
+        });
+        super.onActivityCreated(savedInstanceState);
     }
 
     public void setRemainingPacket(final int couponRemaining) {
