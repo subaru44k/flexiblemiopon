@@ -3,8 +3,6 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/FlexibleMiopon.iml" filepath="$PROJECT_DIR$/FlexibleMiopon.iml" />
-      <module fileurl="file://$PROJECT_DIR$/HoloGraphLibrary/HoloGraphLibrary.iml" filepath="$PROJECT_DIR$/HoloGraphLibrary/HoloGraphLibrary.iml" />
-      <module fileurl="file://$PROJECT_DIR$/HoloGraphLibrarySample/HoloGraphLibrarySample.iml" filepath="$PROJECT_DIR$/HoloGraphLibrarySample/HoloGraphLibrarySample.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
       <module fileurl="file://$PROJECT_DIR$/library/library.iml" filepath="$PROJECT_DIR$/library/library.iml" />
     </modules>

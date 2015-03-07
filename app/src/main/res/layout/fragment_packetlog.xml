@@ -22,10 +22,19 @@
                 android:textAppearance="?android:attr/textAppearanceLarge"
                 android:text="データ使用量"
                 android:id="@+id/textView"
-                android:layout_marginStart="40dp"
-                android:layout_marginTop="30dp"
+                android:layout_marginStart="35dp"
+                android:layout_marginTop="25dp"
                 android:layout_alignParentTop="true"
                 android:layout_alignParentStart="true" />
+
+            <Spinner
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/spinner"
+                android:layout_alignTop="@+id/textView"
+                android:layout_alignParentEnd="true"
+                android:layout_marginEnd="29dp"
+                android:entries="@array/graph_scale" />
         </RelativeLayout>
 
         <RelativeLayout
@@ -34,7 +43,7 @@
             android:id="@+id/layout"
             android:layout_gravity="center_horizontal|bottom"
             android:gravity="bottom"
-            android:layout_marginTop="100dp">
+            android:layout_marginTop="80dp">
 
             <ProgressBar
                 android:id="@+id/product_image_loading"

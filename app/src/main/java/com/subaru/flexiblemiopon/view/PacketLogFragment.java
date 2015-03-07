@@ -98,11 +98,26 @@ public class PacketLogFragment extends Fragment {
         return inflater.inflate(R.layout.fragment_packetlog, container, false);
     }
 
+    /**
+     * Set packet log to the fragment to show the graph
+     * @param packetLogInfo
+     */
     public void setPacketLog(PacketLogInfo packetLogInfo) {
         mPacketLogInfo = packetLogInfo;
 
         List<PacketLogInfo.HdoInfo.PacketLog> packetLogList = mPacketLogInfo.getHdoInfoList().get(0).getPacketLogList();
 
+        GraphicalView graph = getPacketLogGraph(packetLogList);
+
+        RelativeLayout layout = (RelativeLayout) getActivity().findViewById(R.id.layout);
+        layout.addView(graph);
+
+        ProgressBar progressBar = (ProgressBar) getActivity().findViewById(R.id.product_image_loading);
+        progressBar.setVisibility(View.GONE);
+
+    }
+
+    private GraphicalView getPacketLogGraph(List<PacketLogInfo.HdoInfo.PacketLog> packetLogList) {
         XYSeriesRenderer r = new XYSeriesRenderer();
         r.setColor(Color.RED);
         r.setLineWidth(5);
@@ -147,14 +162,7 @@ public class PacketLogFragment extends Fragment {
         dataset.addSeries(getWithoutCouponLine(packetLogList));
 
         LayoutInflater.from(getActivity()).inflate(R.layout.fragment_packetlog, null);
-        RelativeLayout layout = (RelativeLayout) getActivity().findViewById(R.id.layout);
-        GraphicalView graph = ChartFactory.getLineChartView(getActivity(), dataset, renderer);
-
-        layout.addView(graph);
-
-        ProgressBar progressBar = (ProgressBar) getActivity().findViewById(R.id.product_image_loading);
-        progressBar.setVisibility(View.GONE);
-
+        return ChartFactory.getLineChartView(getActivity(), dataset, renderer);
     }
 
     private XYSeries getWithCouponLine(List<PacketLogInfo.HdoInfo.PacketLog> packetLogList) {
