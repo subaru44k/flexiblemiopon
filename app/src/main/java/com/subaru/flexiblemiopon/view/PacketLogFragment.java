@@ -166,7 +166,7 @@ public class PacketLogFragment extends Fragment {
     }
 
     private XYSeries getWithCouponLine(List<PacketLogInfo.HdoInfo.PacketLog> packetLogList) {
-        XYSeries series = new XYSeries("With coupon");
+        XYSeries series = new XYSeries(getString(R.string.legend_with_coupon));
 
         int i = 0;
         for (PacketLogInfo.HdoInfo.PacketLog info : packetLogList) {
@@ -177,7 +177,7 @@ public class PacketLogFragment extends Fragment {
     }
 
     private XYSeries getWithoutCouponLine(List<PacketLogInfo.HdoInfo.PacketLog> packetLogList) {
-        XYSeries series = new XYSeries("Without coupon");
+        XYSeries series = new XYSeries(getString(R.string.legend_without_coupon));
 
         int i = 0;
         for (PacketLogInfo.HdoInfo.PacketLog info : packetLogList) {

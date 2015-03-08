@@ -30,4 +30,6 @@ dependencies {
     compile files('libs/achartengine-1.1.0.jar')
     compile 'com.android.support:recyclerview-v7:21.0.0'
     compile "com.daimajia.swipelayout:library:1.1.8@aar"
+    compile group: 'com.google.guava', name: 'guava', version: '15.0'
+    compile "com.android.support:cardview-v7:+"
 }

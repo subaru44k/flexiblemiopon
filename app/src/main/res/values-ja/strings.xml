@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">FlexibleMiopon</string>
+    <string name="switch_high_speed" translatable="false">高速モード</string>
+    <string name="switch_notification_bar">通知バーに常駐</string>
+    <string name="switch_change_basedon_screen">画面消灯後自動で低速化</string>
+    <string name="data_consumption">データ使用量</string>
+    <string name="legend_with_coupon">クーポン使用</string>
+    <string name="legend_without_coupon">クーポン未使用</string>
+    <string name="switch_auto_start">端末起動時にアプリを起動</string>
+</resources>

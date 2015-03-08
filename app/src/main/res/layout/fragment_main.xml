@@ -28,16 +28,49 @@
         <RelativeLayout
             android:layout_width="fill_parent"
             android:layout_height="fill_parent"
-            android:id="@+id/switchView">
+            android:id="@+id/switchView"
+            android:paddingEnd="40dp"
+            android:gravity="right">
 
             <Switch
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="High Speed"
-                android:id="@+id/switch1"
+                android:text="@string/switch_high_speed"
+                android:id="@+id/switch_highspeed"
                 android:layout_alignParentTop="true"
                 android:layout_centerHorizontal="true"
                 android:layout_marginTop="98dp" />
+            <Switch
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/switch_notification_bar"
+                android:id="@+id/switch_foreground_service"
+                android:layout_centerHorizontal="true"
+                android:layout_alignEnd="@+id/switch_highspeed"
+                android:layout_below="@+id/switch_highspeed"
+                android:layout_marginTop="30dp"
+                />
+            <Switch
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/switch_change_basedon_screen"
+                android:id="@+id/switch_auto_change_on_screen_state"
+                android:layout_centerHorizontal="true"
+                android:layout_alignEnd="@+id/switch_foreground_service"
+                android:layout_below="@+id/switch_foreground_service"
+                android:layout_marginTop="30dp"
+                />
+            <Switch
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/switch_auto_start"
+                android:id="@+id/switch_auto_boot"
+                android:layout_centerHorizontal="true"
+                android:layout_alignEnd="@+id/switch_auto_change_on_screen_state"
+                android:layout_below="@+id/switch_auto_change_on_screen_state"
+                android:layout_marginTop="30dp"
+                android:checked="true"
+                />
         </RelativeLayout>
 
     </RelativeLayout>

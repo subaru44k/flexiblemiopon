@@ -29,7 +29,7 @@ public class FlexibleFragmentPagerAdaper extends FragmentPagerAdapter {
             case 1:
                 return new MainFragment();
             case 2:
-                return new ItemFragment();
+                return new SettingFragment();
             default:
                 return new MainFragment();
         }

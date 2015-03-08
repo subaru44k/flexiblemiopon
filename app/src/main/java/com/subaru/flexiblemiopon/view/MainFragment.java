@@ -105,7 +105,7 @@ public class MainFragment extends Fragment {
         getActivity().runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                Switch switchView = (Switch) getActivity().findViewById(R.id.switch1);
+                Switch switchView = (Switch) getActivity().findViewById(R.id.switch_highspeed);
                 if (Boolean.valueOf(switchView.isChecked()).equals(Boolean.valueOf(isEnabled))) {
                     // no need to change
                     return;
@@ -128,7 +128,7 @@ public class MainFragment extends Fragment {
         getActivity().runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                Switch switchView = (Switch) getActivity().findViewById(R.id.switch1);
+                Switch switchView = (Switch) getActivity().findViewById(R.id.switch_highspeed);
                 switchView.setOnCheckedChangeListener(null);
             }
         });

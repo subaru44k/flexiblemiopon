@@ -20,7 +20,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textAppearance="?android:attr/textAppearanceLarge"
-                android:text="データ使用量"
+                android:text="@string/data_consumption"
                 android:id="@+id/textView"
                 android:layout_marginStart="35dp"
                 android:layout_marginTop="25dp"
@@ -31,7 +31,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:id="@+id/spinner"
-                android:layout_alignTop="@+id/textView"
+                android:layout_alignBottom="@+id/textView"
                 android:layout_alignParentEnd="true"
                 android:layout_marginEnd="29dp"
                 android:entries="@array/graph_scale" />

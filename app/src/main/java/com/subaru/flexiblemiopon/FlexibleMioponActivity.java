@@ -16,14 +16,14 @@ import android.widget.TextView;
 import com.subaru.flexiblemiopon.data.AccessToken;
 import com.subaru.flexiblemiopon.data.PacketLogInfo;
 import com.subaru.flexiblemiopon.view.FlexibleFragmentPagerAdaper;
-import com.subaru.flexiblemiopon.view.ItemFragment;
+import com.subaru.flexiblemiopon.view.SettingFragment;
 import com.subaru.flexiblemiopon.view.MainFragment;
 import com.subaru.flexiblemiopon.view.PacketLogFragment;
 import com.viewpagerindicator.CirclePageIndicator;
 
 
 public class FlexibleMioponActivity extends ActionBarActivity
-        implements ItemFragment.OnFragmentInteractionListener, PacketLogFragment.OnFragmentInteractionListener, MainFragment.OnFragmentInteractionListener,
+        implements SettingFragment.OnFragmentInteractionListener, PacketLogFragment.OnFragmentInteractionListener, MainFragment.OnFragmentInteractionListener,
         FlexibleMioponService.OnViewOperationListener, FlexibleMioponService.OnSwitchListener, FlexibleMioponService.OnPacketLogListener {
 
     private final String LOG_TAG = "FlexibleMioponActivity";
