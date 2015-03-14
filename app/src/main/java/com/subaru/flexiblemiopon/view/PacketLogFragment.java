@@ -139,7 +139,7 @@ public class PacketLogFragment extends Fragment {
 
     private GraphicalView getPacketLogGraph(List<PacketLogInfo.HdoInfo.PacketLog> packetLogList) {
         XYSeriesRenderer r = new XYSeriesRenderer();
-        r.setColor(Color.RED);
+        r.setColor(getResources().getColor(R.color.bright_foreground_disabled_material_light));
         r.setLineWidth(5);
         r.setPointStyle(PointStyle.CIRCLE);
         XYSeriesRenderer r2 = new XYSeriesRenderer();
@@ -168,7 +168,7 @@ public class PacketLogFragment extends Fragment {
         XYMultipleSeriesRenderer renderer = new XYMultipleSeriesRenderer();
         renderer.addSeriesRenderer(r);
         renderer.addSeriesRenderer(r2);
-        renderer.setMarginsColor(Color.WHITE);
+
         renderer.setPanEnabled(false, false);
         renderer.setXLabels(0);
         renderer.setAxisTitleTextSize(30);
@@ -189,7 +189,7 @@ public class PacketLogFragment extends Fragment {
         renderer.setMargins(new int[]{50, 50, 50, 50});
 
         renderer.setApplyBackgroundColor(true);
-        renderer.setMarginsColor(Color.parseColor("#F059a6FF"));
+        renderer.setMarginsColor(Color.parseColor("#2792c3"));
         renderer.setBackgroundColor(getResources().getColor(R.color.bright_foreground_disabled_material_dark));
 
         return renderer;

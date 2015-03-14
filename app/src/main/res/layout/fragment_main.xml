@@ -17,11 +17,31 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textAppearance="?android:attr/textAppearanceLarge"
-                android:text=""
-                android:id="@+id/remainingCoupon"
-                android:layout_alignParentTop="true"
-                android:layout_alignParentStart="true"
+                android:text="@string/title_remaining_coupon"
+                android:id="@+id/amount"
                 android:layout_marginStart="35dp"
+                android:layout_marginTop="25dp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceLarge"
+                android:text="0000"
+                android:id="@+id/remainingCoupon"
+                android:layout_toEndOf="@+id/amount"
+                android:layout_alignBaseline="@+id/amount"
+                android:layout_marginLeft="10dp"
+                android:layout_marginTop="25dp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:text="MB"
+                android:textColor="@color/background_floating_material_dark"
+                android:layout_toEndOf="@+id/remainingCoupon"
+                android:layout_alignBaseline="@+id/remainingCoupon"
+                android:layout_marginLeft="5dp"
                 android:layout_marginTop="25dp" />
         </RelativeLayout>
 

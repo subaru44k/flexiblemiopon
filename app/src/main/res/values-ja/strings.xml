@@ -12,4 +12,5 @@
     <string name="switch_data_limit_per_day">1日の使用量制限</string>
     <string name="graph_packet_usage">パケット使用量</string>
     <string name="graph_x_digit">日</string>
+    <string name="title_remaining_coupon">クーポン残量</string>
 </resources>

@@ -114,7 +114,7 @@ public class MainFragment extends Fragment {
 
     public void setRemainingPacket(final int couponRemaining) {
         TextView remainingCouponView = (TextView) getActivity().findViewById(R.id.remainingCoupon);
-        remainingCouponView.setText(Integer.toString(couponRemaining) + " " + "MB");
+        remainingCouponView.setText(Integer.toString(couponRemaining));
     }
 
     @Override
