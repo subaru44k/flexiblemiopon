@@ -16,6 +16,9 @@ import com.daimajia.swipe.SwipeLayout;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
 import com.subaru.flexiblemiopon.R;
+import com.subaru.flexiblemiopon.util.Mediator;
+import com.subaru.flexiblemiopon.util.SettingButton;
+import com.subaru.flexiblemiopon.util.SettingMediator;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -110,6 +113,11 @@ public class MainFragment extends Fragment {
                     // no need to change
                     return;
                 }
+//                SettingButton button = new SettingButton(getString(R.string.switch_high_speed));
+//                Mediator mediator = SettingMediator.getInstance();
+//                button.setMediator(mediator);
+//                mediator.setComponent(button);
+//                button.setChecked();
                 switchView.setChecked(isEnabled);
 
                 // after obtained and set the switch status, add listener.

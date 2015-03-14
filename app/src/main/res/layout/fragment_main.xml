@@ -50,27 +50,7 @@
                 android:layout_below="@+id/switch_highspeed"
                 android:layout_marginTop="30dp"
                 />
-            <Switch
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/switch_change_basedon_screen"
-                android:id="@+id/switch_auto_change_on_screen_state"
-                android:layout_centerHorizontal="true"
-                android:layout_alignEnd="@+id/switch_foreground_service"
-                android:layout_below="@+id/switch_foreground_service"
-                android:layout_marginTop="30dp"
-                />
-            <Switch
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/switch_auto_start"
-                android:id="@+id/switch_auto_boot"
-                android:layout_centerHorizontal="true"
-                android:layout_alignEnd="@+id/switch_auto_change_on_screen_state"
-                android:layout_below="@+id/switch_auto_change_on_screen_state"
-                android:layout_marginTop="30dp"
-                android:checked="true"
-                />
+
         </RelativeLayout>
 
     </RelativeLayout>

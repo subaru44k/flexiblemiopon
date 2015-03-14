@@ -15,6 +15,8 @@ import android.widget.TextView;
 
 import com.subaru.flexiblemiopon.data.AccessToken;
 import com.subaru.flexiblemiopon.data.PacketLogInfo;
+import com.subaru.flexiblemiopon.util.Mediator;
+import com.subaru.flexiblemiopon.util.SettingMediator;
 import com.subaru.flexiblemiopon.view.FlexibleFragmentPagerAdaper;
 import com.subaru.flexiblemiopon.view.SettingFragment;
 import com.subaru.flexiblemiopon.view.MainFragment;
@@ -38,6 +40,8 @@ public class FlexibleMioponActivity extends ActionBarActivity
             mService = ((FlexibleMioponService.LocalBinder) iBinder).getService();
             mActivity.setListener();
             mService.Authenticate();
+
+            SettingMediator.getInstance().setService(mService);
         }
 
         @Override
@@ -100,25 +104,10 @@ public class FlexibleMioponActivity extends ActionBarActivity
         mService.retrieveCouponInfo();
     }
 
-    private void setDebugText(final String text) {
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                TextView debugView = (TextView) findViewById(R.id.remainingCoupon);
-                debugView.setText(text);
-            }
-        });
-    }
-
     private void setListener() {
         mService.setOnDebugOutputListener(this);
         mService.setOnSwitchListener(this);
         mService.setOnPacketLogListener(this);
-    }
-
-    @Override
-    public void onDebugRequest(String str) {
-        setDebugText(str);
     }
 
     @Override
@@ -161,6 +150,8 @@ public class FlexibleMioponActivity extends ActionBarActivity
                     MainFragment mainFragment = (MainFragment) fragment;
                     mainFragment.setSwitch(isEnabled);
                 }
+
+                SettingMediator.getInstance().setChecked(getString(R.string.switch_high_speed), isEnabled);
             }
         });
     }

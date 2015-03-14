@@ -4,23 +4,20 @@ import android.app.Activity;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.GridLayoutManager;
-import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
-import android.widget.ListAdapter;
-import android.widget.TextView;
 
-import com.google.common.collect.Lists;
 import com.subaru.flexiblemiopon.R;
 
+import com.subaru.flexiblemiopon.data.SettingItems;
+import com.subaru.flexiblemiopon.util.SettingMediator;
 import com.subaru.flexiblemiopon.view.settingitem.DummyContent;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -33,6 +30,8 @@ import java.util.List;
  * interface.
  */
 public class SettingFragment extends Fragment implements AbsListView.OnItemClickListener {
+
+    private static final String LOG_TAG = SettingFragment.class.getName();
 
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -92,11 +91,12 @@ public class SettingFragment extends Fragment implements AbsListView.OnItemClick
         View view = inflater.inflate(R.layout.fragment_setting_list, container, false);
 
         mRecyclerView = (RecyclerView) view.findViewById(R.id.recycler_view);
-        GridLayoutManager layoutManager = new GridLayoutManager(getActivity(), 3);
+        GridLayoutManager layoutManager = new GridLayoutManager(getActivity(), 1);
         mRecyclerView.setLayoutManager(layoutManager);
 
-        List<String> dataList = Lists.newArrayList("item1", "item2", "item2", "item2", "item2", "item2", "item2", "item2", "item2", "item2", "item2", "item2", "item2", "item2", "item2", "item2", "item2", "item2", "item2", "item2", "item2", "item2", "item2", "item2", "item2", "item2", "item2", "item2", "item2", "item2", "item2");
-        mAdapter = new SettingItemAdapter(dataList);
+        List<Integer> settingIdList = SettingItems.settingIdList;
+
+        mAdapter = new SettingItemAdapter(SettingMediator.getInstance(), settingIdList, getResources());
         mRecyclerView.setAdapter(mAdapter);
 
         return view;
@@ -119,26 +119,12 @@ public class SettingFragment extends Fragment implements AbsListView.OnItemClick
         mListener = null;
     }
 
-
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         if (null != mListener) {
             // Notify the active callbacks interface (the activity, if the
             // fragment is attached to one) that an item has been selected.
             mListener.onFragmentInteraction(DummyContent.ITEMS.get(position).id);
-        }
-    }
-
-    /**
-     * The default content for this Fragment has a TextView that is shown when
-     * the list is empty. If you would like to change the text, call this method
-     * to supply the text it should use.
-     */
-    public void setEmptyText(CharSequence emptyText) {
-        View emptyView = mListView.getEmptyView();
-
-        if (emptyView instanceof TextView) {
-            ((TextView) emptyView).setText(emptyText);
         }
     }
 

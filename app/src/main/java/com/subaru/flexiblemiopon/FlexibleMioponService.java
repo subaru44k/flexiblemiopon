@@ -298,7 +298,6 @@ public class FlexibleMioponService extends Service {
     }
 
     interface OnViewOperationListener {
-        public void onDebugRequest(String str);
         public void onCouponViewChange(int couponRemaining);
     }
 
