@@ -28,4 +28,6 @@
     <string name="switch_auto_start">Auto start when device is on</string>
     <string name="switch_data_limit">Alart when coupon used rapidly</string>
     <string name="switch_data_limit_per_day">1 day limit</string>
+    <string name="graph_packet_usage">Packet usage</string>
+    <string name="graph_x_digit">day(s)</string>
 </resources>

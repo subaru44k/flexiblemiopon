@@ -6,18 +6,16 @@ import android.graphics.Paint;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.text.Layout;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
+import android.widget.AdapterView;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
-import android.widget.Toast;
+import android.widget.Spinner;
 
 import com.subaru.flexiblemiopon.R;
 
-import com.google.android.gms.plus.PlusOneButton;
 import com.subaru.flexiblemiopon.data.PacketLogInfo;
 
 import org.achartengine.ChartFactory;
@@ -44,11 +42,14 @@ public class PacketLogFragment extends Fragment {
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
 
+    private static final String LOG_TAG = PacketLogFragment.class.getName();
+
     // TODO: Rename and change types of parameters
     private String mParam1;
     private String mParam2;
 
     private PacketLogInfo mPacketLogInfo;
+    private Spinner mSpinner;
     private OnFragmentInteractionListener mListener;
 
     /**
@@ -87,34 +88,53 @@ public class PacketLogFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_packetlog, container, false);
+        ProgressBar progressBar = (ProgressBar) view.findViewById(R.id.product_image_loading);
+        progressBar.setVisibility(View.VISIBLE);
 
-        if (mPacketLogInfo == null) {
-            ProgressBar progressBar = (ProgressBar) view.findViewById(R.id.product_image_loading);
-            progressBar.setVisibility(View.VISIBLE);
-        } else {
-            setPacketLog(mPacketLogInfo);
-        }
+        mSpinner = (Spinner) view.findViewById(R.id.spinner_packet_graph_duration);
 
-        return inflater.inflate(R.layout.fragment_packetlog, container, false);
+        return view;
+    }
+
+    @Override
+    public void onActivityCreated(Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+
+        mSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+
+                if (mPacketLogInfo != null) {
+                    refleshGraph();
+                }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> adapterView) {
+            }
+        });
     }
 
     /**
-     * Set packet log to the fragment to show the graph
+     * Set packet log to the fragment
      * @param packetLogInfo
      */
     public void setPacketLog(PacketLogInfo packetLogInfo) {
         mPacketLogInfo = packetLogInfo;
+    }
+
+    /**
+     * Refresh the graph based on packetLog
+     */
+    public void refleshGraph() {
+        RelativeLayout layout = (RelativeLayout) getActivity().findViewById(R.id.layout);
+        layout.removeAllViews();
 
         List<PacketLogInfo.HdoInfo.PacketLog> packetLogList = mPacketLogInfo.getHdoInfoList().get(0).getPacketLogList();
 
         GraphicalView graph = getPacketLogGraph(packetLogList);
 
-        RelativeLayout layout = (RelativeLayout) getActivity().findViewById(R.id.layout);
         layout.addView(graph);
-
-        ProgressBar progressBar = (ProgressBar) getActivity().findViewById(R.id.product_image_loading);
-        progressBar.setVisibility(View.GONE);
-
     }
 
     private GraphicalView getPacketLogGraph(List<PacketLogInfo.HdoInfo.PacketLog> packetLogList) {
@@ -127,35 +147,8 @@ public class PacketLogFragment extends Fragment {
         r2.setLineWidth(5);
         r2.setPointStyle(PointStyle.CIRCLE);
 
-        XYMultipleSeriesRenderer renderer = new XYMultipleSeriesRenderer();
-        renderer.addSeriesRenderer(r);
-        renderer.addSeriesRenderer(r2);
-        renderer.setMarginsColor(Color.WHITE);
-        renderer.setPanEnabled(false, false);
-        renderer.setXLabels(0);
-        renderer.setXTitle("Date");
-        renderer.setAxisTitleTextSize(30);
-        renderer.addXTextLabel(20, "2/20");
-        renderer.addXTextLabel(22, "2/22");
-        renderer.addXTextLabel(24, "2/24");
-        renderer.addXTextLabel(26, "2/26");
-        renderer.addXTextLabel(28, "2/28");
-        renderer.addXTextLabel(30, "2/30");
-        renderer.setYLabels(10);
-        renderer.setYTitle("MB");
-        renderer.setLegendTextSize(30);
-        renderer.setLabelsTextSize(20);
-        renderer.setXAxisMin(20);
-        renderer.setXAxisMax(30);
-        renderer.setChartTitle("Chart title");
-        renderer.setChartTitleTextSize(50);
-//        renderer.setYAxisMin(0);
-//        renderer.setYAxisMax(100);
-        renderer.setShowGrid(true);
-        renderer.setXLabelsAlign(Paint.Align.RIGHT);
-        renderer.setYLabelsAlign(Paint.Align.RIGHT);
-        renderer.setMargins(new int[] { 50, 50, 50, 50 });
-//        renderer.setZoomButtonsVisible(true);
+        String durationString = (String) mSpinner.getSelectedItem();
+        XYMultipleSeriesRenderer renderer = getXyMultipleSeriesRenderer(r, r2, getDuration(durationString));
 
         XYMultipleSeriesDataset dataset = new XYMultipleSeriesDataset();
         dataset.addSeries(getWithCouponLine(packetLogList));
@@ -163,6 +156,41 @@ public class PacketLogFragment extends Fragment {
 
         LayoutInflater.from(getActivity()).inflate(R.layout.fragment_packetlog, null);
         return ChartFactory.getLineChartView(getActivity(), dataset, renderer);
+    }
+
+    private int getDuration(String durationString) {
+        return Integer.parseInt(durationString.substring(0, durationString.indexOf(" ")));
+    }
+
+    private XYMultipleSeriesRenderer getXyMultipleSeriesRenderer(XYSeriesRenderer r, XYSeriesRenderer r2, int duration) {
+        int xAxisMax = 30;
+
+        XYMultipleSeriesRenderer renderer = new XYMultipleSeriesRenderer();
+        renderer.addSeriesRenderer(r);
+        renderer.addSeriesRenderer(r2);
+        renderer.setMarginsColor(Color.WHITE);
+        renderer.setPanEnabled(false, false);
+        renderer.setXLabels(0);
+        renderer.setAxisTitleTextSize(30);
+
+        for (int i=0; i<=duration; i += duration / 5) {
+            renderer.addXTextLabel(xAxisMax - i, "-" + Integer.toString(i) + getString(R.string.graph_x_digit));
+        }
+
+        renderer.setYLabels(10);
+        renderer.setYTitle("MB");
+        renderer.setLegendTextSize(30);
+        renderer.setLabelsTextSize(20);
+        renderer.setXAxisMin(xAxisMax - duration);
+        renderer.setXAxisMax(xAxisMax);
+        renderer.setChartTitle(getString(R.string.graph_packet_usage));
+        renderer.setChartTitleTextSize(50);
+        renderer.setShowGrid(true);
+        renderer.setXLabelsAlign(Paint.Align.RIGHT);
+        renderer.setYLabelsAlign(Paint.Align.RIGHT);
+        renderer.setMargins(new int[] { 50, 50, 50, 50 });
+
+        return renderer;
     }
 
     private XYSeries getWithCouponLine(List<PacketLogInfo.HdoInfo.PacketLog> packetLogList) {
@@ -190,14 +218,6 @@ public class PacketLogFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-
-    }
-
-    // TODO: Rename method, update argument and hook method into UI event
-    public void onButtonPressed(Uri uri) {
-        if (mListener != null) {
-            mListener.onFragmentInteraction(uri);
-        }
     }
 
     @Override

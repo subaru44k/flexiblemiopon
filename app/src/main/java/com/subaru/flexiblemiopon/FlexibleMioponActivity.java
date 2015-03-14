@@ -11,11 +11,9 @@ import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.util.Log;
-import android.widget.TextView;
 
 import com.subaru.flexiblemiopon.data.AccessToken;
 import com.subaru.flexiblemiopon.data.PacketLogInfo;
-import com.subaru.flexiblemiopon.util.Mediator;
 import com.subaru.flexiblemiopon.util.SettingMediator;
 import com.subaru.flexiblemiopon.view.FlexibleFragmentPagerAdaper;
 import com.subaru.flexiblemiopon.view.SettingFragment;
@@ -160,6 +158,7 @@ public class FlexibleMioponActivity extends ActionBarActivity
                 if (fragment instanceof PacketLogFragment) {
                     PacketLogFragment packetLogFragment = (PacketLogFragment) fragment;
                     packetLogFragment.setPacketLog(packetLogInfo);
+                    packetLogFragment.refleshGraph();
                 }
             }
         });

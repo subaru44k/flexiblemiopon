@@ -115,46 +115,6 @@ public class MainFragment extends Fragment {
     public void setRemainingPacket(final int couponRemaining) {
         TextView remainingCouponView = (TextView) getActivity().findViewById(R.id.remainingCoupon);
         remainingCouponView.setText(Integer.toString(couponRemaining) + " " + "MB");
-
-    }
-
-    public void setSwitch(final boolean isEnabled) {
-
-//        getActivity().runOnUiThread(new Runnable() {
-//            @Override
-//            public void run() {
-//                Switch switchView = (Switch) getActivity().findViewById(R.id.switch_highspeed);
-//                if (Boolean.valueOf(switchView.isChecked()).equals(Boolean.valueOf(isEnabled))) {
-//                    // no need to change
-//                    return;
-//                }
-////                SettingButton button = new SettingButton(getString(R.string.switch_high_speed));
-////                Mediator mediator = SettingMediator.getInstance();
-////                button.setMediator(mediator);
-////                mediator.setComponent(button);
-////                button.setChecked();
-//                switchView.setChecked(isEnabled);
-//
-//                // after obtained and set the switch status, add listener.
-//                // if you do this onCreate, then switch.setChecked will invoke onCheckedChanged
-//                switchView.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-//                    @Override
-//                    public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-//                        mListener.onFragmentInteraction(Boolean.toString(b));
-//                    }
-//                });
-//            }
-//        });
-    }
-
-    public void removeSwitchListener() {
-//        getActivity().runOnUiThread(new Runnable() {
-//            @Override
-//            public void run() {
-//                Switch switchView = (Switch) getActivity().findViewById(R.id.switch_highspeed);
-//                switchView.setOnCheckedChangeListener(null);
-//            }
-//        });
     }
 
     @Override

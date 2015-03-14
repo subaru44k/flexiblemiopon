@@ -10,4 +10,6 @@
     <string name="switch_auto_start">端末起動時にアプリを起動</string>
     <string name="switch_data_limit">短時間使用で警告</string>
     <string name="switch_data_limit_per_day">1日の使用量制限</string>
+    <string name="graph_packet_usage">パケット使用量</string>
+    <string name="graph_x_digit">日</string>
 </resources>
