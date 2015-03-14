@@ -19,7 +19,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
-import static com.subaru.flexiblemiopon.Constant.DEVELOPER_ID;
+import static com.subaru.flexiblemiopon.util.Constant.DEVELOPER_ID;
 
 /**
  * Created by shiny_000 on 2015/02/27.

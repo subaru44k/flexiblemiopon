@@ -1,6 +1,7 @@
 package com.subaru.flexiblemiopon.util;
 
 import com.subaru.flexiblemiopon.FlexibleMioponService;
+import com.subaru.flexiblemiopon.R;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -43,12 +44,26 @@ public class SettingMediator implements Mediator {
 
     @Override
     public void onClicked(Component component) {
-        if (mComponentStatusMap.get(component)) {
-            mComponentStatusMap.put(component, Boolean.FALSE);
-            component.setChecked(Boolean.FALSE);
+        Boolean isChecked = mComponentStatusMap.get(component);
+        Boolean toBeChecked = (isChecked) ? Boolean.FALSE : Boolean.TRUE;
+        if (isChecked) {
+            mComponentStatusMap.put(component, toBeChecked);
+            component.setChecked(toBeChecked);
         } else {
-            mComponentStatusMap.put(component, Boolean.TRUE);
-            component.setChecked(Boolean.TRUE);
+            mComponentStatusMap.put(component, toBeChecked);
+            component.setChecked(toBeChecked);
+        }
+
+        // handle appropriate operation
+        handleClick(component, toBeChecked);
+    }
+
+    private void handleClick(Component component, Boolean isChecked) {
+        if (mService == null) {
+            return;
+        }
+        if (component.toString().equals(mService.getString(R.string.switch_high_speed))) {
+            mService.changeCoupon(isChecked);
         }
     }
 

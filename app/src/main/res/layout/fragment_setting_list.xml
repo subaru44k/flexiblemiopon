@@ -5,11 +5,32 @@
     android:layout_height="match_parent"
     tools:context="com.subaru.flexiblemiopon.view.SettingFragment">
 
-    <android.support.v7.widget.RecyclerView
-        android:id="@+id/recycler_view"
-        android:layout_width="wrap_content"
-        android:layout_height="match_parent"
-        android:descendantFocusability="blocksDescendants"
-        />
+    <RelativeLayout
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:id="@+id/switchView"
+        android:paddingEnd="40dp"
+        android:gravity="right">
+
+        <Switch
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/switch_high_speed"
+            android:id="@+id/switch_highspeed"
+            android:layout_alignParentTop="true"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="98dp" />
+        <Switch
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/switch_notification_bar"
+            android:id="@+id/switch_foreground_service"
+            android:layout_centerHorizontal="true"
+            android:layout_alignEnd="@+id/switch_highspeed"
+            android:layout_below="@+id/switch_highspeed"
+            android:layout_marginTop="30dp"
+            />
+
+    </RelativeLayout>
 
 </LinearLayout>

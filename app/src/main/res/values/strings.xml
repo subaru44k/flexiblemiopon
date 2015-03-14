@@ -26,4 +26,6 @@
     <string name="legend_with_coupon">with coupon</string>
     <string name="legend_without_coupon">without coupon</string>
     <string name="switch_auto_start">Auto start when device is on</string>
+    <string name="switch_data_limit">Alart when coupon used rapidly</string>
+    <string name="switch_data_limit_per_day">1 day limit</string>
 </resources>

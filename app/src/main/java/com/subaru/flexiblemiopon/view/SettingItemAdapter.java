@@ -1,17 +1,14 @@
 package com.subaru.flexiblemiopon.view;
 
 import android.content.res.Resources;
-import android.graphics.Color;
-import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
 
 import com.subaru.flexiblemiopon.R;
 import com.subaru.flexiblemiopon.util.Mediator;
-import com.subaru.flexiblemiopon.util.SettingButton;
+import com.subaru.flexiblemiopon.view.button.SettingButton;
 
 import java.util.List;
 

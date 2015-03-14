@@ -85,7 +85,6 @@ public class FlexibleMioponActivity extends ActionBarActivity
     protected void onResume() {
         super.onResume();
         if (mService != null) {
-            removeSwitchListener();
             mService.Authenticate();
         }
     }
@@ -132,25 +131,11 @@ public class FlexibleMioponActivity extends ActionBarActivity
         }
     }
 
-    private void removeSwitchListener() {
-        Fragment fragment = mFragmentPagerAdapter.getFragment(1);
-        if (fragment instanceof MainFragment) {
-            MainFragment mainFragment = (MainFragment) fragment;
-            mainFragment.removeSwitchListener();
-        }
-    }
-
     @Override
     public void onCouponStatusObtained(final boolean isEnabled) {
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                Fragment fragment = mFragmentPagerAdapter.getFragment(1);
-                if (fragment instanceof MainFragment) {
-                    MainFragment mainFragment = (MainFragment) fragment;
-                    mainFragment.setSwitch(isEnabled);
-                }
-
                 SettingMediator.getInstance().setChecked(getString(R.string.switch_high_speed), isEnabled);
             }
         });

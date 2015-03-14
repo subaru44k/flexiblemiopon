@@ -4,11 +4,11 @@ import android.app.Activity;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.GridLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.CompoundButton;
-import android.widget.Switch;
 import android.widget.TextView;
 
 import com.daimajia.swipe.SimpleSwipeListener;
@@ -16,9 +16,10 @@ import com.daimajia.swipe.SwipeLayout;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
 import com.subaru.flexiblemiopon.R;
-import com.subaru.flexiblemiopon.util.Mediator;
-import com.subaru.flexiblemiopon.util.SettingButton;
+import com.subaru.flexiblemiopon.util.SettingItems;
 import com.subaru.flexiblemiopon.util.SettingMediator;
+
+import java.util.List;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -39,6 +40,9 @@ public class MainFragment extends Fragment {
     private String mParam2;
 
     private OnFragmentInteractionListener mListener;
+
+    private SettingItemAdapter mAdapter;
+    private RecyclerView mRecyclerView;
 
     /**
      * Use this factory method to create a new instance of
@@ -75,7 +79,18 @@ public class MainFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_main, container, false);
+        View view = inflater.inflate(R.layout.fragment_main, container, false);
+
+        mRecyclerView = (RecyclerView) view.findViewById(R.id.recycler_view);
+        GridLayoutManager layoutManager = new GridLayoutManager(getActivity(), 2);
+        mRecyclerView.setLayoutManager(layoutManager);
+
+        List<Integer> settingIdList = SettingItems.settingIdList;
+
+        mAdapter = new SettingItemAdapter(SettingMediator.getInstance(), settingIdList, getResources());
+        mRecyclerView.setAdapter(mAdapter);
+
+        return view;
     }
 
     @Override
@@ -105,41 +120,41 @@ public class MainFragment extends Fragment {
 
     public void setSwitch(final boolean isEnabled) {
 
-        getActivity().runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                Switch switchView = (Switch) getActivity().findViewById(R.id.switch_highspeed);
-                if (Boolean.valueOf(switchView.isChecked()).equals(Boolean.valueOf(isEnabled))) {
-                    // no need to change
-                    return;
-                }
-//                SettingButton button = new SettingButton(getString(R.string.switch_high_speed));
-//                Mediator mediator = SettingMediator.getInstance();
-//                button.setMediator(mediator);
-//                mediator.setComponent(button);
-//                button.setChecked();
-                switchView.setChecked(isEnabled);
-
-                // after obtained and set the switch status, add listener.
-                // if you do this onCreate, then switch.setChecked will invoke onCheckedChanged
-                switchView.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-                    @Override
-                    public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-                        mListener.onFragmentInteraction(Boolean.toString(b));
-                    }
-                });
-            }
-        });
+//        getActivity().runOnUiThread(new Runnable() {
+//            @Override
+//            public void run() {
+//                Switch switchView = (Switch) getActivity().findViewById(R.id.switch_highspeed);
+//                if (Boolean.valueOf(switchView.isChecked()).equals(Boolean.valueOf(isEnabled))) {
+//                    // no need to change
+//                    return;
+//                }
+////                SettingButton button = new SettingButton(getString(R.string.switch_high_speed));
+////                Mediator mediator = SettingMediator.getInstance();
+////                button.setMediator(mediator);
+////                mediator.setComponent(button);
+////                button.setChecked();
+//                switchView.setChecked(isEnabled);
+//
+//                // after obtained and set the switch status, add listener.
+//                // if you do this onCreate, then switch.setChecked will invoke onCheckedChanged
+//                switchView.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+//                    @Override
+//                    public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+//                        mListener.onFragmentInteraction(Boolean.toString(b));
+//                    }
+//                });
+//            }
+//        });
     }
 
     public void removeSwitchListener() {
-        getActivity().runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                Switch switchView = (Switch) getActivity().findViewById(R.id.switch_highspeed);
-                switchView.setOnCheckedChangeListener(null);
-            }
-        });
+//        getActivity().runOnUiThread(new Runnable() {
+//            @Override
+//            public void run() {
+//                Switch switchView = (Switch) getActivity().findViewById(R.id.switch_highspeed);
+//                switchView.setOnCheckedChangeListener(null);
+//            }
+//        });
     }
 
     @Override

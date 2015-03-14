@@ -2,14 +2,10 @@ package com.subaru.flexiblemiopon;
 
 import android.app.Service;
 import android.content.Intent;
-import android.graphics.Color;
 import android.net.Uri;
 import android.os.Binder;
 import android.os.IBinder;
 import android.util.Log;
-import android.view.View;
-import android.widget.RelativeLayout;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.subaru.flexiblemiopon.data.AccessToken;
@@ -19,11 +15,10 @@ import com.subaru.flexiblemiopon.data.TokenIO;
 import com.subaru.flexiblemiopon.util.task.SimpleTaskExecutor;
 import com.subaru.flexiblemiopon.util.task.TaskExecutor;
 
-import static com.subaru.flexiblemiopon.Constant.CALLBACK_URI;
-import static com.subaru.flexiblemiopon.Constant.REDIRECT_URI_BASE;
+import static com.subaru.flexiblemiopon.util.Constant.CALLBACK_URI;
+import static com.subaru.flexiblemiopon.util.Constant.REDIRECT_URI_BASE;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 public class FlexibleMioponService extends Service {

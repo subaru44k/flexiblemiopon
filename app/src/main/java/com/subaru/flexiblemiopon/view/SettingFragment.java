@@ -3,7 +3,6 @@ package com.subaru.flexiblemiopon.view;
 import android.app.Activity;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -14,11 +13,6 @@ import android.widget.AdapterView;
 
 import com.subaru.flexiblemiopon.R;
 
-import com.subaru.flexiblemiopon.data.SettingItems;
-import com.subaru.flexiblemiopon.util.SettingMediator;
-import com.subaru.flexiblemiopon.view.settingitem.DummyContent;
-
-import java.util.List;
 
 /**
  * A fragment representing a list of Items.
@@ -29,7 +23,7 @@ import java.util.List;
  * Activities containing this fragment MUST implement the {@link OnFragmentInteractionListener}
  * interface.
  */
-public class SettingFragment extends Fragment implements AbsListView.OnItemClickListener {
+public class SettingFragment extends Fragment {
 
     private static final String LOG_TAG = SettingFragment.class.getName();
 
@@ -90,15 +84,6 @@ public class SettingFragment extends Fragment implements AbsListView.OnItemClick
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_setting_list, container, false);
 
-        mRecyclerView = (RecyclerView) view.findViewById(R.id.recycler_view);
-        GridLayoutManager layoutManager = new GridLayoutManager(getActivity(), 1);
-        mRecyclerView.setLayoutManager(layoutManager);
-
-        List<Integer> settingIdList = SettingItems.settingIdList;
-
-        mAdapter = new SettingItemAdapter(SettingMediator.getInstance(), settingIdList, getResources());
-        mRecyclerView.setAdapter(mAdapter);
-
         return view;
     }
 
@@ -117,15 +102,6 @@ public class SettingFragment extends Fragment implements AbsListView.OnItemClick
     public void onDetach() {
         super.onDetach();
         mListener = null;
-    }
-
-    @Override
-    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        if (null != mListener) {
-            // Notify the active callbacks interface (the activity, if the
-            // fragment is attached to one) that an item has been selected.
-            mListener.onFragmentInteraction(DummyContent.ITEMS.get(position).id);
-        }
     }
 
     /**

@@ -8,4 +8,6 @@
     <string name="legend_with_coupon">クーポン使用</string>
     <string name="legend_without_coupon">クーポン未使用</string>
     <string name="switch_auto_start">端末起動時にアプリを起動</string>
+    <string name="switch_data_limit">短時間使用で警告</string>
+    <string name="switch_data_limit_per_day">1日の使用量制限</string>
 </resources>
