@@ -10,6 +10,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
+import android.widget.NumberPicker;
 
 import com.subaru.flexiblemiopon.R;
 
@@ -83,6 +84,10 @@ public class SettingFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_setting_list, container, false);
+
+        NumberPicker picker = (NumberPicker) view.findViewById(R.id.number_auto_coupon_change);
+        picker.setMaxValue(20);
+        picker.setMinValue(1);
 
         return view;
     }

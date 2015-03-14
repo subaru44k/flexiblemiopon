@@ -10,25 +10,34 @@
         android:layout_height="fill_parent"
         android:id="@+id/switchView"
         android:paddingEnd="40dp"
-        android:gravity="right">
+        android:gravity="center_horizontal">
 
-        <Switch
+        <TextView
+            android:layout_width="200dp"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:layout_marginTop="60dp"
+            android:text="画面消灯後　クーポンOFFまでの時間"
+            android:maxLines="2"
+            android:id="@+id/switch_auto_coupon_change"/>
+
+        <NumberPicker
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/switch_high_speed"
-            android:id="@+id/switch_highspeed"
-            android:layout_alignParentTop="true"
-            android:layout_centerHorizontal="true"
-            android:layout_marginTop="98dp" />
+            android:layout_toEndOf="@+id/switch_auto_coupon_change"
+            android:layout_marginLeft="10dp"
+            android:id="@+id/number_auto_coupon_change"
+            />
+
         <Switch
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/switch_notification_bar"
             android:id="@+id/switch_foreground_service"
             android:layout_centerHorizontal="true"
-            android:layout_alignEnd="@+id/switch_highspeed"
-            android:layout_below="@+id/switch_highspeed"
-            android:layout_marginTop="30dp"
+            android:layout_alignEnd="@+id/switch_auto_coupon_change"
+            android:layout_below="@+id/switch_auto_coupon_change"
+            android:layout_marginTop="70dp"
             />
 
     </RelativeLayout>
