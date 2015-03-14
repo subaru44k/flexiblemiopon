@@ -19,7 +19,7 @@
                 android:textAppearance="?android:attr/textAppearanceLarge"
                 android:text="@string/title_remaining_coupon"
                 android:id="@+id/amount"
-                android:layout_marginStart="35dp"
+                android:layout_marginStart="30dp"
                 android:layout_marginTop="25dp" />
 
             <TextView
@@ -28,9 +28,9 @@
                 android:textAppearance="?android:attr/textAppearanceLarge"
                 android:text="0000"
                 android:id="@+id/remainingCoupon"
-                android:layout_toEndOf="@+id/amount"
+                android:layout_toLeftOf="@+id/digit"
                 android:layout_alignBaseline="@+id/amount"
-                android:layout_marginLeft="10dp"
+                android:layout_marginRight="5dp"
                 android:layout_marginTop="25dp" />
 
             <TextView
@@ -38,10 +38,11 @@
                 android:layout_height="wrap_content"
                 android:textAppearance="?android:attr/textAppearanceMedium"
                 android:text="MB"
+                android:id="@+id/digit"
                 android:textColor="@color/background_floating_material_dark"
-                android:layout_toEndOf="@+id/remainingCoupon"
                 android:layout_alignBaseline="@+id/remainingCoupon"
-                android:layout_marginLeft="5dp"
+                android:layout_alignParentEnd="true"
+                android:layout_marginEnd="35dp"
                 android:layout_marginTop="25dp" />
         </RelativeLayout>
 
