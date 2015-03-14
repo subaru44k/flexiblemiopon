@@ -1,9 +1,12 @@
 package com.subaru.flexiblemiopon;
 
+import android.app.ActionBar;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.IBinder;
 import android.support.v4.app.Fragment;
@@ -11,6 +14,7 @@ import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Window;
 
 import com.subaru.flexiblemiopon.data.AccessToken;
 import com.subaru.flexiblemiopon.data.PacketLogInfo;
@@ -63,6 +67,9 @@ public class FlexibleMioponActivity extends ActionBarActivity
     protected void onCreate(Bundle savedInstanceState) {
         Log.d(LOG_TAG, "onCreate");
         super.onCreate(savedInstanceState);
+
+        android.support.v7.app.ActionBar ActionBar = getSupportActionBar();
+        ActionBar.setBackgroundDrawable(new ColorDrawable(getResources().getColor(R.color.material_deep_teal_500)));
         setContentView(R.layout.activity_main);
 
         ViewPager viewPager = (ViewPager) findViewById(R.id.pager);
@@ -158,7 +165,7 @@ public class FlexibleMioponActivity extends ActionBarActivity
                 if (fragment instanceof PacketLogFragment) {
                     PacketLogFragment packetLogFragment = (PacketLogFragment) fragment;
                     packetLogFragment.setPacketLog(packetLogInfo);
-                    packetLogFragment.refleshGraph();
+                    packetLogFragment.refreshGraph();
                 }
             }
         });

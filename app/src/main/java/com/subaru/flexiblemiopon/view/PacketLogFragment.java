@@ -105,7 +105,7 @@ public class PacketLogFragment extends Fragment {
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
 
                 if (mPacketLogInfo != null) {
-                    refleshGraph();
+                    refreshGraph();
                 }
             }
 
@@ -126,7 +126,7 @@ public class PacketLogFragment extends Fragment {
     /**
      * Refresh the graph based on packetLog
      */
-    public void refleshGraph() {
+    public void refreshGraph() {
         RelativeLayout layout = (RelativeLayout) getActivity().findViewById(R.id.layout);
         layout.removeAllViews();
 
@@ -183,12 +183,14 @@ public class PacketLogFragment extends Fragment {
         renderer.setLabelsTextSize(20);
         renderer.setXAxisMin(xAxisMax - duration);
         renderer.setXAxisMax(xAxisMax);
-        renderer.setChartTitle(getString(R.string.graph_packet_usage));
-        renderer.setChartTitleTextSize(50);
         renderer.setShowGrid(true);
         renderer.setXLabelsAlign(Paint.Align.RIGHT);
         renderer.setYLabelsAlign(Paint.Align.RIGHT);
-        renderer.setMargins(new int[] { 50, 50, 50, 50 });
+        renderer.setMargins(new int[]{50, 50, 50, 50});
+
+        renderer.setApplyBackgroundColor(true);
+        renderer.setMarginsColor(Color.parseColor("#F059a6FF"));
+        renderer.setBackgroundColor(getResources().getColor(R.color.bright_foreground_disabled_material_dark));
 
         return renderer;
     }

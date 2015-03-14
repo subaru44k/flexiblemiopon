@@ -54,9 +54,9 @@ public class SettingButton extends LinearLayout implements Component {
     @Override
     public void setChecked(boolean isClicked) {
         if (isClicked) {
-            mCardView.setCardBackgroundColor(Color.parseColor("#52A6FF"));
+            mCardView.setCardBackgroundColor(Color.parseColor("#F072b6FF"));
         } else {
-            mCardView.setCardBackgroundColor(Color.parseColor("#BBBBBB"));
+            mCardView.setCardBackgroundColor(Color.parseColor("#F0DDDDDD"));
         }
     }
 

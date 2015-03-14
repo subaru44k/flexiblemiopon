@@ -30,9 +30,8 @@
             xmlns:tools="http://schemas.android.com/tools"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_alignEnd="@+id/remainingCouponLayout"
-            android:layout_below="@+id/remainingCouponLayout"
-            android:paddingTop="20dp"
+            android:layout_marginTop="75dp"
+            android:background="@color/material_deep_teal_500"
             tools:context="com.subaru.flexiblemiopon.view.SettingFragment">
 
             <android.support.v7.widget.RecyclerView
