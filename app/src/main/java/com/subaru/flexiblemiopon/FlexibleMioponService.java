@@ -297,16 +297,17 @@ public class FlexibleMioponService extends Service {
     };
 
     private BroadcastReceiver mScreenStatusReceiver = new BroadcastReceiver() {
+        Handler mHandler = new Handler();
+
         @Override
         public void onReceive(Context context, Intent intent) {
-            Handler handler = new Handler();
             if (intent.getAction().equals(Intent.ACTION_SCREEN_ON)) {
                 Log.d(LOG_TAG, "Screen is on");
-                handler.removeCallbacks(mOffRunnable);
+                mHandler.removeCallbacks(mOffRunnable);
                 changeCoupon(true);
             } else if (intent.getAction().equals(Intent.ACTION_SCREEN_OFF)){
                 Log.d(LOG_TAG, "Screen is off");
-                handler.postDelayed(mOffRunnable, 60000); // TODO Delay value should be read from user setting
+                mHandler.postDelayed(mOffRunnable, 60000); // TODO Delay value should be read from user setting
             } else {
                 Log.d(LOG_TAG, "Do not handle this intent from screen status receiver");
             }
@@ -334,6 +335,7 @@ public class FlexibleMioponService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+        Log.d(LOG_TAG, "onStartCommand");
         Map<String, AccessToken> tokenMap = readExistingToken();
         if (!isTokenAvailable(tokenMap)) {
             return super.onStartCommand(intent, flags, startId);

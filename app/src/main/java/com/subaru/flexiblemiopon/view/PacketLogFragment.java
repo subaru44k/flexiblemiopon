@@ -139,11 +139,11 @@ public class PacketLogFragment extends Fragment {
 
     private GraphicalView getPacketLogGraph(List<PacketLogInfo.HdoInfo.PacketLog> packetLogList) {
         XYSeriesRenderer r = new XYSeriesRenderer();
-        r.setColor(getResources().getColor(R.color.bright_foreground_disabled_material_light));
+        r.setColor(Color.BLUE);
         r.setLineWidth(5);
         r.setPointStyle(PointStyle.CIRCLE);
         XYSeriesRenderer r2 = new XYSeriesRenderer();
-        r2.setColor(Color.BLUE);
+        r2.setColor(getResources().getColor(R.color.bright_foreground_disabled_material_light));
         r2.setLineWidth(5);
         r2.setPointStyle(PointStyle.CIRCLE);
 
