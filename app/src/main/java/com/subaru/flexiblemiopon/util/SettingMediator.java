@@ -1,5 +1,8 @@
 package com.subaru.flexiblemiopon.util;
 
+import android.content.Intent;
+import android.content.IntentFilter;
+
 import com.subaru.flexiblemiopon.FlexibleMioponService;
 import com.subaru.flexiblemiopon.R;
 
@@ -43,9 +46,24 @@ public class SettingMediator implements Mediator {
     }
 
     @Override
+    public boolean isChecked(String componentName) {
+        for (Component component : mComponentStatusMap.keySet()) {
+            if (component.toString().equals(componentName)) {
+                return mComponentStatusMap.get(component);
+            }
+        }
+        return false;
+    }
+
+    @Override
     public void onClicked(Component component) {
         Boolean isChecked = mComponentStatusMap.get(component);
         Boolean toBeChecked = (isChecked) ? Boolean.FALSE : Boolean.TRUE;
+
+        // handle appropriate operation
+        handleClick(component, toBeChecked);
+
+        // change the status
         if (isChecked) {
             mComponentStatusMap.put(component, toBeChecked);
             component.setChecked(toBeChecked);
@@ -53,9 +71,6 @@ public class SettingMediator implements Mediator {
             mComponentStatusMap.put(component, toBeChecked);
             component.setChecked(toBeChecked);
         }
-
-        // handle appropriate operation
-        handleClick(component, toBeChecked);
     }
 
     private void handleClick(Component component, Boolean isChecked) {
@@ -64,6 +79,14 @@ public class SettingMediator implements Mediator {
         }
         if (component.toString().equals(mService.getString(R.string.switch_high_speed))) {
             mService.changeCoupon(isChecked);
+        }
+        // TODO consider the sensitive case. If one is not ON the coupon and enable auto coupon on/off, then coupon status will be on automatically.
+        if (component.toString().equals(mService.getString(R.string.switch_change_basedon_screen))) {
+            if (isChecked) {
+                mService.registerScreenOnOffReceiver();
+            } else {
+                mService.unregisterScreenOnOffReceiver();
+            }
         }
     }
 

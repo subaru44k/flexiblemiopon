@@ -7,6 +7,7 @@ public interface Mediator {
 
     void setComponent(Component component);
     boolean isChecked(Component component);
+    boolean isChecked(String component);
     void onClicked(Component component);
     void setChecked(Component component, boolean isChecked);
     void setChecked(String componentName, boolean isChecked);

@@ -1,11 +1,9 @@
 package com.subaru.flexiblemiopon;
 
-import android.app.ActionBar;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
-import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.IBinder;
@@ -14,7 +12,6 @@ import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.Window;
 
 import com.subaru.flexiblemiopon.data.AccessToken;
 import com.subaru.flexiblemiopon.data.PacketLogInfo;
@@ -41,6 +38,7 @@ public class FlexibleMioponActivity extends ActionBarActivity
         public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
             mService = ((FlexibleMioponService.LocalBinder) iBinder).getService();
             mActivity.setListener();
+            mService.setMediator(SettingMediator.getInstance());
             mService.Authenticate();
 
             SettingMediator.getInstance().setService(mService);
@@ -51,10 +49,6 @@ public class FlexibleMioponActivity extends ActionBarActivity
             mService = null;
         }
     };
-
-    public FlexibleMioponService getService() {
-        return mService;
-    }
 
     private AccessToken.TokenExpiredListener mTokenListner = new AccessToken.TokenExpiredListener() {
         @Override
@@ -153,7 +147,7 @@ public class FlexibleMioponActivity extends ActionBarActivity
 
     @Override
     public void onFragmentInteraction(String str) {
-        mService.changeCoupon(Boolean.parseBoolean(str));
+
     }
 
     @Override

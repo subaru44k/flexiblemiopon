@@ -1,9 +1,13 @@
 package com.subaru.flexiblemiopon;
 
 import android.app.Service;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.net.Uri;
 import android.os.Binder;
+import android.os.Handler;
 import android.os.IBinder;
 import android.util.Log;
 import android.widget.Toast;
@@ -12,6 +16,7 @@ import com.subaru.flexiblemiopon.data.AccessToken;
 import com.subaru.flexiblemiopon.data.CouponInfo;
 import com.subaru.flexiblemiopon.data.PacketLogInfo;
 import com.subaru.flexiblemiopon.data.TokenIO;
+import com.subaru.flexiblemiopon.util.Mediator;
 import com.subaru.flexiblemiopon.util.task.SimpleTaskExecutor;
 import com.subaru.flexiblemiopon.util.task.TaskExecutor;
 
@@ -38,6 +43,12 @@ public class FlexibleMioponService extends Service {
     CouponInfo mCouponInfo;
     private TaskExecutor mTaskExecutor;
     private Toast mToast;
+
+    private Mediator mMediator;
+
+    public void setMediator(Mediator mediator) {
+        mMediator = mediator;
+    }
 
     public void setOnDebugOutputListener(OnViewOperationListener listener) {
         mDebugListener = listener;
@@ -116,16 +127,16 @@ public class FlexibleMioponService extends Service {
     public void getTokenFromAuth(Intent intent) {
         Uri uri = intent.getData();
         Log.d(LOG_TAG, "calling callbackFromAuth" + uri.toString());
-        // インテントを取得
+        // get an intent
         String action = intent.getAction();
         if (Intent.ACTION_VIEW.equals(action)) {
             if ((uri != null) && (uri.toString().startsWith(CALLBACK_URI))) {
                 //setDebugText(uri.toString());
-                Map<String, String> parameterSet = getFragmentParameterMap(uri);
-                AccessToken token = new AccessToken(parameterSet.get("access_token"),
-                        parameterSet.get("token_type"),
-                        Integer.parseInt(parameterSet.get("expires_in")),
-                        parameterSet.get("state"));
+                Map<String, String> parameterMap = getFragmentParameterMap(uri);
+                AccessToken token = new AccessToken(parameterMap.get("access_token"),
+                        parameterMap.get("token_type"),
+                        Integer.parseInt(parameterMap.get("expires_in")),
+                        parameterMap.get("state"));
 
                 // write token for use again without authentication
                 writeToken(token);
@@ -147,6 +158,13 @@ public class FlexibleMioponService extends Service {
      * @param isCouponUse true -> On, false -> Off
      */
     public void changeCoupon(boolean isCouponUse) {
+
+        // return if current coupon status is already what specified by argument
+        if (mMediator.isChecked(getString(R.string.switch_high_speed)) == isCouponUse) {
+            Log.d(LOG_TAG, "Ignore changeCoupon since it is already in that state");
+            return;
+        }
+
         Map<String, AccessToken> tokenMap = readExistingToken();
 
         AccessToken token = getAccessToken(tokenMap);
@@ -260,6 +278,41 @@ public class FlexibleMioponService extends Service {
         return queryMap;
     }
 
+    private Runnable mOffRunnable = new Runnable() {
+        @Override
+        public void run() {
+            changeCoupon(false);
+        }
+    };
+
+    private BroadcastReceiver mScreenStatusReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            Handler handler = new Handler();
+            if (intent.getAction().equals(Intent.ACTION_SCREEN_ON)) {
+                Log.d(LOG_TAG, "Screen is on");
+                handler.removeCallbacks(mOffRunnable);
+                changeCoupon(true);
+            } else if (intent.getAction().equals(Intent.ACTION_SCREEN_OFF)){
+                Log.d(LOG_TAG, "Screen is off");
+                handler.postDelayed(mOffRunnable, 60000); // TODO Delay value should be read from user setting
+            } else {
+                Log.d(LOG_TAG, "Do not handle this intent from screen status receiver");
+            }
+        }
+    };
+
+    public void registerScreenOnOffReceiver() {
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(Intent.ACTION_SCREEN_ON);
+        filter.addAction(Intent.ACTION_SCREEN_OFF);
+        registerReceiver(mScreenStatusReceiver, filter);
+    }
+
+    public void unregisterScreenOnOffReceiver() {
+        unregisterReceiver(mScreenStatusReceiver);
+    }
+
     @Override
     public void onCreate() {
         mTaskExecutor = new SimpleTaskExecutor();
@@ -293,14 +346,14 @@ public class FlexibleMioponService extends Service {
     }
 
     interface OnViewOperationListener {
-        public void onCouponViewChange(int couponRemaining);
+        void onCouponViewChange(int couponRemaining);
     }
 
     interface OnSwitchListener {
-        public void onCouponStatusObtained(boolean isEnabled);
+        void onCouponStatusObtained(boolean isEnabled);
     }
 
     interface OnPacketLogListener {
-        public void onPacketLogObtained(PacketLogInfo packetLogInfo);
+        void onPacketLogObtained(PacketLogInfo packetLogInfo);
     }
 }
