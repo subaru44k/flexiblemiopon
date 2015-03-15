@@ -10,12 +10,12 @@ import android.os.Binder;
 import android.os.Handler;
 import android.os.IBinder;
 import android.util.Log;
-import android.widget.Toast;
 
 import com.subaru.flexiblemiopon.data.AccessToken;
 import com.subaru.flexiblemiopon.data.CouponInfo;
 import com.subaru.flexiblemiopon.data.PacketLogInfo;
 import com.subaru.flexiblemiopon.data.TokenIO;
+import com.subaru.flexiblemiopon.util.FlexibleMioponToast;
 import com.subaru.flexiblemiopon.util.Mediator;
 import com.subaru.flexiblemiopon.util.task.SimpleTaskExecutor;
 import com.subaru.flexiblemiopon.util.task.TaskExecutor;
@@ -42,12 +42,12 @@ public class FlexibleMioponService extends Service {
     private OnPacketLogListener mPacketLogListener;
     CouponInfo mCouponInfo;
     private TaskExecutor mTaskExecutor;
-    private Toast mToast;
 
     private Mediator mMediator;
 
     public void setMediator(Mediator mediator) {
         mMediator = mediator;
+        FlexibleMioponToast.setMediator(mediator);
     }
 
     public void setOnDebugOutputListener(OnViewOperationListener listener) {
@@ -172,8 +172,7 @@ public class FlexibleMioponService extends Service {
             @Override
             public void onCouponChanged(boolean isCouponUse) {
                 // show toast or something?
-                mToast.setText("coupon changed successfully");
-                mToast.show();
+                FlexibleMioponToast.showToast("coupon changed successfully");
 
                 // set switch with the correct status. Please care, while coupon change is retrying again and again in background, Activity is closed and opened.
                 // In this case, getCouponInfo will run and obtain the current status. And switch is changed to that state.
@@ -192,8 +191,7 @@ public class FlexibleMioponService extends Service {
 
             @Override
             public void onNotifyRetryLater() {
-                mToast.setText("Coupon change rejected by IIJ side. I try it later, so just a moment please.");
-                mToast.show();
+                FlexibleMioponToast.showToast("Change coupon rejected from IIJ side. This will automatically be retried.");
             }
         });
     }
@@ -231,9 +229,7 @@ public class FlexibleMioponService extends Service {
 
             @Override
             public void onNotifyRetryLater() {
-                mToast.setText("Coupon change rejected by IIJ side. I try it later, so just a moment please.");
-                mToast.show();
-
+                FlexibleMioponToast.showToast("Couopon information cannot be obtained. This will automatically be retried.");
             }
         });
     }
@@ -316,7 +312,7 @@ public class FlexibleMioponService extends Service {
     @Override
     public void onCreate() {
         mTaskExecutor = new SimpleTaskExecutor();
-        mToast = Toast.makeText(this, "Toast", Toast.LENGTH_LONG);
+        FlexibleMioponToast.setContext(this);
         super.onCreate();
     }
 

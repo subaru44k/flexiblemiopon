@@ -4,7 +4,6 @@
     <string name="hello_world" translatable="false">Hello world!</string>
     <string name="action_settings" translatable="false">Settings</string>
 
-<!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment" translatable="false">Hello blank fragment</string>
     <string name="title_activity_main2" translatable="false">Main2Activity</string>
 
@@ -31,4 +30,5 @@
     <string name="graph_packet_usage">Packet usage</string>
     <string name="graph_x_digit">day(s)</string>
     <string name="title_remaining_coupon">Remaining </string>
+    <string name="switch_show_notification">Show toast on coupon change</string>
 </resources>

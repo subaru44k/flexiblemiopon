@@ -13,4 +13,5 @@
     <string name="graph_packet_usage">パケット使用量</string>
     <string name="graph_x_digit">日</string>
     <string name="title_remaining_coupon">クーポン残量</string>
+    <string name="switch_show_notification">クーポン変更時に通知</string>
 </resources>
