@@ -111,7 +111,7 @@ public class SimpleTaskExecutor implements TaskExecutor {
                 } catch (InterruptedException e) {
                     Log.d(LOG_TAG, "Get coupon info task cancelled");
                 } catch (ExecutionException e) {
-                    Log.e(LOG_TAG, "ExecutionException : " + e.getMessage());
+                    Log.e(LOG_TAG, "ExecutionException : " + e.getMessage() + e.getLocalizedMessage() + e.getCause().getMessage());
                 } finally {
                     Log.d(LOG_TAG, "Get coupon info task finished");
                     return new Object();
@@ -198,7 +198,7 @@ public class SimpleTaskExecutor implements TaskExecutor {
                 } catch (InterruptedException e) {
                     Log.d(LOG_TAG, "Coupon change task cancelled");
                 } catch (ExecutionException e) {
-                    Log.e(LOG_TAG, "ExecutionException : " + e.getMessage());
+                    Log.e(LOG_TAG, "ExecutionException : " + e.getMessage() + e.getLocalizedMessage() + e.getCause().getMessage());
                 } finally {
                     Log.d(LOG_TAG, "Coupon change task finished");
                     return new Object();
@@ -284,7 +284,7 @@ public class SimpleTaskExecutor implements TaskExecutor {
                 } catch (InterruptedException e) {
                     Log.d(LOG_TAG, "Get packetlog task cancelled");
                 } catch (ExecutionException e) {
-                    Log.e(LOG_TAG, "ExecutionException : " + e.getMessage());
+                    Log.e(LOG_TAG, "ExecutionException : " + e.getMessage() + e.getLocalizedMessage() + e.getCause().getMessage());
                 } finally {
                     Log.d(LOG_TAG, "Get packetlog task finished");
                     return new Object();

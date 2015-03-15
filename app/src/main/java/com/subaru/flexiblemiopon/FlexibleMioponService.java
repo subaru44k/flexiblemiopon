@@ -17,6 +17,7 @@ import com.subaru.flexiblemiopon.data.PacketLogInfo;
 import com.subaru.flexiblemiopon.data.TokenIO;
 import com.subaru.flexiblemiopon.util.FlexibleMioponToast;
 import com.subaru.flexiblemiopon.util.Mediator;
+import com.subaru.flexiblemiopon.util.SettingMediator;
 import com.subaru.flexiblemiopon.util.task.SimpleTaskExecutor;
 import com.subaru.flexiblemiopon.util.task.TaskExecutor;
 
@@ -37,9 +38,27 @@ public class FlexibleMioponService extends Service {
 
     private final String LOG_TAG = "FlexibleMioponService";
 
-    private OnViewOperationListener mDebugListener;
-    private OnSwitchListener mSwitchListener;
-    private OnPacketLogListener mPacketLogListener;
+    private OnViewOperationListener mDebugListener = new OnViewOperationListener() {
+        @Override
+        public void onCouponViewChange(int couponRemaining) {
+            Log.d(LOG_TAG, "Default mDebugListener instance is used");
+        }
+    };
+
+    private OnSwitchListener mSwitchListener = new OnSwitchListener() {
+        @Override
+        public void onCouponStatusObtained(boolean isEnabled) {
+            Log.d(LOG_TAG, "Default mSwitchListener instance is used");
+        }
+    };
+
+    private OnPacketLogListener mPacketLogListener = new OnPacketLogListener() {
+        @Override
+        public void onPacketLogObtained(PacketLogInfo packetLogInfo) {
+            Log.d(LOG_TAG, "Default mPacketLogListener instance is used");
+        }
+    };
+
     CouponInfo mCouponInfo;
     private TaskExecutor mTaskExecutor;
 
@@ -158,7 +177,6 @@ public class FlexibleMioponService extends Service {
      * @param isCouponUse true -> On, false -> Off
      */
     public void changeCoupon(boolean isCouponUse) {
-
         // return if current coupon status is already what specified by argument
         if (mMediator.isChecked(getString(R.string.switch_high_speed)) == isCouponUse) {
             Log.d(LOG_TAG, "Ignore changeCoupon since it is already in that state");
@@ -174,8 +192,6 @@ public class FlexibleMioponService extends Service {
                 // show toast or something?
                 FlexibleMioponToast.showToast("coupon changed successfully");
 
-                // set switch with the correct status. Please care, while coupon change is retrying again and again in background, Activity is closed and opened.
-                // In this case, getCouponInfo will run and obtain the current status. And switch is changed to that state.
                 mSwitchListener.onCouponStatusObtained(isCouponUse);
             }
 
@@ -243,7 +259,6 @@ public class FlexibleMioponService extends Service {
             @Override
             public void onPacketLogInfoObtained(PacketLogInfo packetLogInfo) {
                 mPacketLogListener.onPacketLogObtained(packetLogInfo);
-
             }
 
             @Override
@@ -299,6 +314,7 @@ public class FlexibleMioponService extends Service {
     };
 
     public void registerScreenOnOffReceiver() {
+        Log.d(LOG_TAG, "registerScreenOnOffReceiver");
         IntentFilter filter = new IntentFilter();
         filter.addAction(Intent.ACTION_SCREEN_ON);
         filter.addAction(Intent.ACTION_SCREEN_OFF);
@@ -318,6 +334,17 @@ public class FlexibleMioponService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+        Map<String, AccessToken> tokenMap = readExistingToken();
+        if (!isTokenAvailable(tokenMap)) {
+            return super.onStartCommand(intent, flags, startId);
+        }
+        // set mCouponInfo from existing file
+        retrieveCouponInfo();
+
+        SettingMediator mediator = SettingMediator.getInstance();
+        setMediator(mediator);
+        mediator.setService(this);
+
         return super.onStartCommand(intent, flags, startId);
     }
 

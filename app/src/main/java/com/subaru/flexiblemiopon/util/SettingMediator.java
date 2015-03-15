@@ -1,10 +1,12 @@
 package com.subaru.flexiblemiopon.util;
 
-import android.content.Intent;
-import android.content.IntentFilter;
+import android.util.Log;
 
 import com.subaru.flexiblemiopon.FlexibleMioponService;
 import com.subaru.flexiblemiopon.R;
+import com.subaru.flexiblemiopon.data.SettingIO;
+
+import static com.subaru.flexiblemiopon.util.Constant.PREFERENCE_FILE_NAME;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -14,10 +16,15 @@ import java.util.Map;
  * Since the mediator should always be a unique object, this class is singleton.
  */
 public class SettingMediator implements Mediator {
+    private static final String LOG_TAG = SettingMediator.class.getName();
     private static final SettingMediator mInstance = new SettingMediator();
     private FlexibleMioponService mService;
+    private SettingIO mSettingIO;
+    Map<Component, Boolean> mComponentStatusMap = new HashMap<>();
+    Map<String, Boolean> mComponentNameStatusMap = new HashMap<>();
 
-    private SettingMediator() {}
+    private SettingMediator() {
+    }
 
     /**
      * Get the instance of SettingMediator
@@ -27,16 +34,28 @@ public class SettingMediator implements Mediator {
         return mInstance;
     }
 
-    Map<Component, Boolean> mComponentStatusMap = new HashMap<>();
-
     public void setService(FlexibleMioponService service) {
         mService = service;
+
+        mSettingIO = new SettingIO(mService.getSharedPreferences(PREFERENCE_FILE_NAME, mService.MODE_PRIVATE), mService.getResources());
+        Map<String, Boolean> settingMap = mSettingIO.readSettings();
+
+        for (Map.Entry<String, Boolean> entry : settingMap.entrySet()) {
+            Log.d(LOG_TAG, entry.getKey() + ":" + entry.getValue().toString());
+            mComponentNameStatusMap.put(entry.getKey(), entry.getValue());
+            setChecked(entry.getKey(), entry.getValue());
+            handleClick(entry.getKey(), entry.getValue());
+        }
     }
 
     @Override
-    public void setComponent(Component component) {
+    synchronized public void setComponent(Component component) {
         if (!mComponentStatusMap.containsKey(component)) {
-            mComponentStatusMap.put(component, Boolean.FALSE);
+            if (mComponentNameStatusMap.containsKey(component.toString())) {
+                mComponentStatusMap.put(component, mComponentNameStatusMap.get(component.toString()));
+            } else {
+                mComponentStatusMap.put(component, Boolean.FALSE);
+            }
         }
     }
 
@@ -67,21 +86,23 @@ public class SettingMediator implements Mediator {
         if (isChecked) {
             mComponentStatusMap.put(component, toBeChecked);
             component.setChecked(toBeChecked);
+            mSettingIO.writeSetting(component.toString(), toBeChecked);
         } else {
             mComponentStatusMap.put(component, toBeChecked);
             component.setChecked(toBeChecked);
+            mSettingIO.writeSetting(component.toString(), toBeChecked);
         }
     }
 
-    private void handleClick(Component component, Boolean isChecked) {
+    private void handleClick(String componentName, Boolean isChecked) {
         if (mService == null) {
             return;
         }
-        if (component.toString().equals(mService.getString(R.string.switch_high_speed))) {
+        if (componentName.equals(mService.getString(R.string.switch_high_speed))) {
             mService.changeCoupon(isChecked);
         }
         // TODO consider the sensitive case. If one is not ON the coupon and enable auto coupon on/off, then coupon status will be on automatically.
-        if (component.toString().equals(mService.getString(R.string.switch_change_basedon_screen))) {
+        if (componentName.equals(mService.getString(R.string.switch_change_basedon_screen))) {
             if (isChecked) {
                 mService.registerScreenOnOffReceiver();
             } else {
@@ -90,17 +111,25 @@ public class SettingMediator implements Mediator {
         }
     }
 
-    @Override
-    public void setChecked(Component component, boolean isChecked) {
-        mComponentStatusMap.put(component, isChecked);
-        component.setChecked(isChecked);
+    private void handleClick(Component component, Boolean isChecked) {
+        handleClick(component.toString(), isChecked);
     }
 
-    public void setChecked(String  componentName, boolean isChecked) {
+    @Override
+    synchronized public void setChecked(Component component, boolean isChecked) {
+        mComponentStatusMap.put(component, isChecked);
+        component.setChecked(isChecked);
+        mSettingIO.writeSetting(component.toString(), isChecked);
+    }
+
+    synchronized public void setChecked(String componentName, boolean isChecked) {
         for (Component component : mComponentStatusMap.keySet()) {
             if (component.toString().equals(componentName)) {
                 mComponentStatusMap.put(component, isChecked);
                 component.setChecked(isChecked);
+                if (mSettingIO != null) {
+                    mSettingIO.writeSetting(componentName, isChecked);
+                }
                 break;
             }
         }

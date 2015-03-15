@@ -15,6 +15,7 @@ import android.util.Log;
 
 import com.subaru.flexiblemiopon.data.AccessToken;
 import com.subaru.flexiblemiopon.data.PacketLogInfo;
+import com.subaru.flexiblemiopon.util.Mediator;
 import com.subaru.flexiblemiopon.util.SettingMediator;
 import com.subaru.flexiblemiopon.view.FlexibleFragmentPagerAdaper;
 import com.subaru.flexiblemiopon.view.SettingFragment;
@@ -38,10 +39,11 @@ public class FlexibleMioponActivity extends ActionBarActivity
         public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
             mService = ((FlexibleMioponService.LocalBinder) iBinder).getService();
             mActivity.setListener();
-            mService.setMediator(SettingMediator.getInstance());
             mService.Authenticate();
 
-            SettingMediator.getInstance().setService(mService);
+            SettingMediator mediator = SettingMediator.getInstance();
+            mService.setMediator(mediator);
+            mediator.setService(mService);
         }
 
         @Override
