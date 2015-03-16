@@ -323,7 +323,13 @@ public class FlexibleMioponService extends Service {
     }
 
     public void unregisterScreenOnOffReceiver() {
-        unregisterReceiver(mScreenStatusReceiver);
+        try {
+            if (mScreenStatusReceiver != null) {
+                unregisterReceiver(mScreenStatusReceiver);
+            }
+        } catch (IllegalArgumentException e) {
+            Log.d(LOG_TAG, "Receiver not registered");
+        }
     }
 
     @Override

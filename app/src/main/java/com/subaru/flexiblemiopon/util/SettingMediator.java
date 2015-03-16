@@ -119,7 +119,9 @@ public class SettingMediator implements Mediator {
     synchronized public void setChecked(Component component, boolean isChecked) {
         mComponentStatusMap.put(component, isChecked);
         component.setChecked(isChecked);
-        mSettingIO.writeSetting(component.toString(), isChecked);
+        if (mSettingIO != null) {
+            mSettingIO.writeSetting(component.toString(), isChecked);
+        }
     }
 
     synchronized public void setChecked(String componentName, boolean isChecked) {

@@ -12,6 +12,7 @@ import java.util.Map;
  * Created by shiny_000 on 2015/03/15.
  */
 public class SettingIO {
+    private static final String LOG_TAG = SettingIO.class.getName();
     private SharedPreferences mSp;
     private Resources mRes;
 
