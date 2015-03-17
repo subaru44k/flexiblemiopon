@@ -47,13 +47,6 @@ public class FlexibleMioponService extends Service {
         }
     };
 
-    private OnSwitchListener mSwitchListener = new OnSwitchListener() {
-        @Override
-        public void onCouponStatusObtained(boolean isEnabled) {
-            Log.d(LOG_TAG, "Default mSwitchListener instance is used");
-        }
-    };
-
     private OnPacketLogListener mPacketLogListener = new OnPacketLogListener() {
         @Override
         public void onPacketLogObtained(PacketLogInfo packetLogInfo) {
@@ -73,10 +66,6 @@ public class FlexibleMioponService extends Service {
 
     public void setOnDebugOutputListener(OnViewOperationListener listener) {
         mDebugListener = listener;
-    }
-
-    public void setOnSwitchListener(OnSwitchListener listener) {
-        mSwitchListener = listener;
     }
 
     public void setOnPacketLogListener(OnPacketLogListener listener) {
@@ -193,8 +182,7 @@ public class FlexibleMioponService extends Service {
             public void onCouponChanged(boolean isCouponUse) {
                 // show toast or something?
                 FlexibleMioponToast.showToast("coupon changed successfully");
-
-                mSwitchListener.onCouponStatusObtained(isCouponUse);
+                mMediator.setChecked(getString(R.string.switch_high_speed), isCouponUse);
             }
 
             @Override
@@ -227,7 +215,7 @@ public class FlexibleMioponService extends Service {
             @Override
             public void onCouponInfoObtained(CouponInfo couponInfo) {
                 mCouponInfo = couponInfo;
-                mSwitchListener.onCouponStatusObtained(mCouponInfo.getHdoInfoList().get(0).isCouponUsing());
+                mMediator.setChecked(getString(R.string.switch_high_speed), mCouponInfo.getHdoInfoList().get(0).isCouponUsing());
                 int couponRemaining = 0;
                 for (CouponInfo.Coupon coupon : mCouponInfo.getCouponList()) {
                     couponRemaining += Integer.parseInt(coupon.getVolume());
@@ -399,10 +387,6 @@ public class FlexibleMioponService extends Service {
 
     interface OnViewOperationListener {
         void onCouponViewChange(int couponRemaining);
-    }
-
-    interface OnSwitchListener {
-        void onCouponStatusObtained(boolean isEnabled);
     }
 
     interface OnPacketLogListener {

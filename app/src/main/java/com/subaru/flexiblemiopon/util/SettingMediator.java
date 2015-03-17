@@ -1,5 +1,7 @@
 package com.subaru.flexiblemiopon.util;
 
+import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 
 import com.subaru.flexiblemiopon.FlexibleMioponService;
@@ -32,6 +34,10 @@ public class SettingMediator implements Mediator {
      */
     public static SettingMediator getInstance() {
         return mInstance;
+    }
+
+    private void runOnUiThread(Runnable runnable) {
+        new Handler(Looper.getMainLooper()).post(runnable);
     }
 
     public void setService(FlexibleMioponService service) {
@@ -79,9 +85,9 @@ public class SettingMediator implements Mediator {
     }
 
     @Override
-    public void onClicked(Component component) {
+    public void onClicked(final Component component) {
         Boolean isChecked = mComponentStatusMap.get(component);
-        Boolean toBeChecked = (isChecked) ? Boolean.FALSE : Boolean.TRUE;
+        final Boolean toBeChecked = (isChecked) ? Boolean.FALSE : Boolean.TRUE;
 
         // handle appropriate operation
         handleClick(component, toBeChecked);
@@ -90,12 +96,22 @@ public class SettingMediator implements Mediator {
         if (isChecked) {
             mComponentStatusMap.put(component, toBeChecked);
             mComponentNameStatusMap.put(component.toString(), toBeChecked);
-            component.setChecked(toBeChecked);
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    component.setChecked(toBeChecked);
+                }
+            });
             mSettingIO.writeSetting(component.toString(), toBeChecked);
         } else {
             mComponentStatusMap.put(component, toBeChecked);
             mComponentNameStatusMap.put(component.toString(), toBeChecked);
-            component.setChecked(toBeChecked);
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    component.setChecked(toBeChecked);
+                }
+            });
             mSettingIO.writeSetting(component.toString(), toBeChecked);
         }
     }
@@ -124,20 +140,31 @@ public class SettingMediator implements Mediator {
     }
 
     @Override
-    synchronized public void setChecked(Component component, boolean isChecked) {
+    synchronized public void setChecked(final Component component, final boolean isChecked) {
         mComponentStatusMap.put(component, isChecked);
         mComponentNameStatusMap.put(component.toString(), isChecked);
-        component.setChecked(isChecked);
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                component.setChecked(isChecked);
+            }
+        });
         if (mSettingIO != null) {
             mSettingIO.writeSetting(component.toString(), isChecked);
         }
     }
 
-    synchronized public void setChecked(String componentName, boolean isChecked) {
-        for (Component component : mComponentStatusMap.keySet()) {
+    synchronized public void setChecked(String componentName, final boolean isChecked) {
+        for (final Component component : mComponentStatusMap.keySet()) {
             if (component.toString().equals(componentName)) {
                 mComponentStatusMap.put(component, isChecked);
-                component.setChecked(isChecked);
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        component.setChecked(isChecked);
+                    }
+                });
+
                 if (mSettingIO != null) {
                     mSettingIO.writeSetting(componentName, isChecked);
                 }

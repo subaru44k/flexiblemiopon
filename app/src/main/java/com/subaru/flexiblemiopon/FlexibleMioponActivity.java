@@ -26,7 +26,7 @@ import com.viewpagerindicator.CirclePageIndicator;
 
 public class FlexibleMioponActivity extends ActionBarActivity
         implements SettingFragment.OnFragmentInteractionListener, PacketLogFragment.OnFragmentInteractionListener, MainFragment.OnFragmentInteractionListener,
-        FlexibleMioponService.OnViewOperationListener, FlexibleMioponService.OnSwitchListener, FlexibleMioponService.OnPacketLogListener {
+        FlexibleMioponService.OnViewOperationListener, FlexibleMioponService.OnPacketLogListener {
 
     private final String LOG_TAG = "FlexibleMioponActivity";
 
@@ -106,7 +106,6 @@ public class FlexibleMioponActivity extends ActionBarActivity
 
     private void setListener() {
         mService.setOnDebugOutputListener(this);
-        mService.setOnSwitchListener(this);
         mService.setOnPacketLogListener(this);
     }
 
@@ -130,16 +129,6 @@ public class FlexibleMioponActivity extends ActionBarActivity
         if (mService != null) {
             unbindService(mConnection);
         }
-    }
-
-    @Override
-    public void onCouponStatusObtained(final boolean isEnabled) {
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                SettingMediator.getInstance().setChecked(getString(R.string.switch_high_speed), isEnabled);
-            }
-        });
     }
 
     @Override
