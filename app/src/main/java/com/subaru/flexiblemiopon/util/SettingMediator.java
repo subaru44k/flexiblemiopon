@@ -55,6 +55,7 @@ public class SettingMediator implements Mediator {
                 mComponentStatusMap.put(component, mComponentNameStatusMap.get(component.toString()));
             } else {
                 mComponentStatusMap.put(component, Boolean.FALSE);
+                mComponentNameStatusMap.put(component.toString(), Boolean.FALSE);
             }
         }
     }
@@ -71,6 +72,9 @@ public class SettingMediator implements Mediator {
                 return mComponentStatusMap.get(component);
             }
         }
+        if (mComponentNameStatusMap.containsKey(componentName)) {
+            return mComponentNameStatusMap.get(componentName);
+        }
         return false;
     }
 
@@ -85,10 +89,12 @@ public class SettingMediator implements Mediator {
         // change the status
         if (isChecked) {
             mComponentStatusMap.put(component, toBeChecked);
+            mComponentNameStatusMap.put(component.toString(), toBeChecked);
             component.setChecked(toBeChecked);
             mSettingIO.writeSetting(component.toString(), toBeChecked);
         } else {
             mComponentStatusMap.put(component, toBeChecked);
+            mComponentNameStatusMap.put(component.toString(), toBeChecked);
             component.setChecked(toBeChecked);
             mSettingIO.writeSetting(component.toString(), toBeChecked);
         }
@@ -105,8 +111,10 @@ public class SettingMediator implements Mediator {
         if (componentName.equals(mService.getString(R.string.switch_change_basedon_screen))) {
             if (isChecked) {
                 mService.registerScreenOnOffReceiver();
+                mService.toForegroundService();
             } else {
                 mService.unregisterScreenOnOffReceiver();
+                mService.toBackgroundService();
             }
         }
     }
@@ -118,6 +126,7 @@ public class SettingMediator implements Mediator {
     @Override
     synchronized public void setChecked(Component component, boolean isChecked) {
         mComponentStatusMap.put(component, isChecked);
+        mComponentNameStatusMap.put(component.toString(), isChecked);
         component.setChecked(isChecked);
         if (mSettingIO != null) {
             mSettingIO.writeSetting(component.toString(), isChecked);
@@ -134,6 +143,9 @@ public class SettingMediator implements Mediator {
                 }
                 break;
             }
+        }
+        if (mComponentNameStatusMap.containsKey(componentName)) {
+            mComponentNameStatusMap.put(componentName, isChecked);
         }
     }
 }

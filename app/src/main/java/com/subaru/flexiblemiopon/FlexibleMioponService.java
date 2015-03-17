@@ -1,5 +1,6 @@
 package com.subaru.flexiblemiopon;
 
+import android.app.PendingIntent;
 import android.app.Service;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -9,6 +10,7 @@ import android.net.Uri;
 import android.os.Binder;
 import android.os.Handler;
 import android.os.IBinder;
+import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
 import com.subaru.flexiblemiopon.data.AccessToken;
@@ -330,6 +332,25 @@ public class FlexibleMioponService extends Service {
         } catch (IllegalArgumentException e) {
             Log.d(LOG_TAG, "Receiver not registered");
         }
+    }
+
+    public void toForegroundService() {
+
+        Intent notificationIntent = new Intent(this, FlexibleMioponService.class);
+        PendingIntent pendingIntent = PendingIntent.getService(this, 0, notificationIntent, 0);
+
+        NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(getApplicationContext());
+        notificationBuilder.setContentIntent(pendingIntent);
+        notificationBuilder.setTicker("ticker");
+        notificationBuilder.setContentTitle("title");
+        notificationBuilder.setContentText("text");
+        notificationBuilder.setSmallIcon(android.R.drawable.ic_dialog_info);
+
+        startForeground(R.string.app_name, notificationBuilder.build());
+    }
+
+    public void toBackgroundService() {
+        stopForeground(true);
     }
 
     @Override

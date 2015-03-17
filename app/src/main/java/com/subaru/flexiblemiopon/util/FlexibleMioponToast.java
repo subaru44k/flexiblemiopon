@@ -31,7 +31,7 @@ public class FlexibleMioponToast {
         }
         if (mMediator != null) {
             if (!mMediator.isChecked(mContext.getString(R.string.switch_show_notification))) {
-                Log.d(LOG_TAG, "Toast will not shown due to use setting");
+                Log.d(LOG_TAG, "Toast will not shown due to user setting");
                 return;
             }
         }
