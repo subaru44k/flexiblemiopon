@@ -79,6 +79,7 @@ public class FlexibleMioponActivity extends ActionBarActivity
         circleIndicator.setViewPager(viewPager);
 
         Intent serviceIntent = new Intent(FlexibleMioponActivity.this, FlexibleMioponService.class);
+//        startService(serviceIntent);
         bindService(serviceIntent, mConnection, Context.BIND_AUTO_CREATE);
     }
 

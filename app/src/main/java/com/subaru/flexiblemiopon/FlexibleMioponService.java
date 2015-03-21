@@ -367,6 +367,8 @@ public class FlexibleMioponService extends Service {
 
     @Override
     public void onDestroy() {
+        toBackgroundService();
+        unregisterScreenOnOffReceiver();
         super.onDestroy();
     }
 

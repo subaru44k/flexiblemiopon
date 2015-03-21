@@ -26,7 +26,7 @@ import static com.subaru.flexiblemiopon.util.Constant.DEVELOPER_ID;
  */
 public class SimpleTaskExecutor implements TaskExecutor {
     private static final String LOG_TAG = SimpleTaskExecutor.class.getName();
-    private TaskManager mManager = new SimpleTaskManager();
+    private TaskManager mManager = new TimeOptimizedTaskManager();
     ExecutorService mWorkerThread = Executors.newCachedThreadPool();
     private Future<Object> mCouponInfoFuture;
     private Future<Object> mCouponChangeFuture;
@@ -44,6 +44,9 @@ public class SimpleTaskExecutor implements TaskExecutor {
                 Future<String> future;
 
                     while(true) {
+
+                        mManager.blockUntilCouponInfoCheckAvailable();
+
                         Command command = new CouponStatusCheckCommand(DEVELOPER_ID, token);
                         future = command.executeAsync(new Command.OnCommandExecutedListener() {
                             @Override
@@ -59,6 +62,7 @@ public class SimpleTaskExecutor implements TaskExecutor {
                                 switch (status) {
                                     case "200":
                                         Log.d(LOG_TAG, "Get coupon info correctly.");
+                                        mManager.notifyCouponInfoCheckInvoked();
                                         try {
                                             CouponInfo couponInfo = ResponseParser.parseCouponInfoResponse(response);
                                             listener.onCouponInfoObtained(couponInfo);
@@ -83,6 +87,7 @@ public class SimpleTaskExecutor implements TaskExecutor {
                                     case "429":
                                         Log.w(LOG_TAG, "Too many requests:");
                                         Log.d(LOG_TAG, response);
+                                        mManager.notifyCouponInfoCheckFailed();
                                         listener.onNotifyRetryLater();
                                         break;
                                     case "500":
@@ -99,14 +104,12 @@ public class SimpleTaskExecutor implements TaskExecutor {
                                 }
                             }
                         });
-                        mManager.notifyCouponInfoCheckInvoked();
 
                         String response = future.get().split(":::")[0];
                         if (!response.equals("429")) {
                             break;
                         }
 
-                        mManager.blockUntilCouponInfoCheckAvailable();
                     }
                 } catch (InterruptedException e) {
                     Log.d(LOG_TAG, "Get coupon info task cancelled");
@@ -138,6 +141,10 @@ public class SimpleTaskExecutor implements TaskExecutor {
                     // Try coupon change again and again until coupon change succeeded
                     while(true) {
                         Command couponChangeCommand = new CouponChangeCommand(DEVELOPER_ID, token, couponInfo, isCouponUse);
+
+                        // block until coupon change available
+                        mManager.blockUntilCouponChangeAvailable();
+
                         future = couponChangeCommand.executeAsync(new Command.OnCommandExecutedListener() {
                             @Override
                             public void onCommandExecuted(String status, String response) {
@@ -148,6 +155,10 @@ public class SimpleTaskExecutor implements TaskExecutor {
                                 switch (status) {
                                     case "200":
                                         Log.d(LOG_TAG, "Coupon changed correctly.");
+
+                                        // let manager know coupon change task is executed
+                                        mManager.notifyCouponChangeInvoked();
+
                                         listener.onCouponChanged(isCouponUse);
                                         break;
                                     case "400":
@@ -167,6 +178,7 @@ public class SimpleTaskExecutor implements TaskExecutor {
                                     case "429":
                                         Log.w(LOG_TAG, "Too many requests:");
                                         Log.d(LOG_TAG, status);
+                                        mManager.notifyCouponChangeFailed();
                                         listener.onNotifyRetryLater();
                                         break;
                                     case "500":
@@ -184,21 +196,18 @@ public class SimpleTaskExecutor implements TaskExecutor {
                                 return;
                             }
                         });
-                        // let manager know coupon change task is executed
-                        mManager.notifyCouponChangeInvoked();
 
                         String response = future.get();
                         if (!response.split(":::")[0].equals("429")) {
                             break;
                         }
-
-                        // block until coupon change available
-                        mManager.blockUntilCouponChangeAvailable();
                     }
                 } catch (InterruptedException e) {
                     Log.d(LOG_TAG, "Coupon change task cancelled");
                 } catch (ExecutionException e) {
                     Log.e(LOG_TAG, "ExecutionException : " + e.getMessage() + e.getLocalizedMessage() + e.getCause().getMessage());
+                } catch (Exception e) {
+                    Log.e(LOG_TAG, e.getMessage());
                 } finally {
                     Log.d(LOG_TAG, "Coupon change task finished");
                     return new Object();
@@ -222,6 +231,9 @@ public class SimpleTaskExecutor implements TaskExecutor {
                     while(true) {
 
                         Command command = new PacketLogCheckCommand(DEVELOPER_ID, token);
+
+                        mManager.blockUntilPacketLogCheckAvailable();
+
                         future = command.executeAsync(new Command.OnCommandExecutedListener() {
                             @Override
                             public void onCommandExecuted(String status, String response) {
@@ -236,6 +248,9 @@ public class SimpleTaskExecutor implements TaskExecutor {
                                 switch (status) {
                                     case "200":
                                         Log.d(LOG_TAG, "Get packetlog info correctly.");
+
+                                        mManager.notifyPacketLogCheckInvoked();
+
                                         try {
                                             PacketLogInfo packetLogInfo = ResponseParser.parsePacketLogInfo(response);
                                             listener.onPacketLogInfoObtained(packetLogInfo);
@@ -256,6 +271,7 @@ public class SimpleTaskExecutor implements TaskExecutor {
                                     case "429":
                                         Log.w(LOG_TAG, "Too many requests:");
                                         Log.d(LOG_TAG, response);
+                                        mManager.notifyPacketLogCheckFailed();
                                         listener.onNotifyRetryLater();
                                         break;
                                     case "500":
@@ -272,14 +288,11 @@ public class SimpleTaskExecutor implements TaskExecutor {
                                 }
                             }
                         });
-                        mManager.notifyPacketLogCheckInvoked();
 
                         String response = future.get().split(":::")[0];
                         if (!response.equals("429")) {
                             break;
                         }
-
-                        mManager.blockUntilPacketLogCheckAvailable();
                     }
                 } catch (InterruptedException e) {
                     Log.d(LOG_TAG, "Get packetlog task cancelled");
