@@ -28,8 +28,8 @@ public class FlexibleFragmentPagerAdaper extends FragmentPagerAdapter {
                 return new PacketLogFragment();
             case 1:
                 return new MainFragment();
-            case 2:
-                return new SettingFragment();
+//            case 2:
+//                return new SettingFragment();
             default:
                 return new MainFragment();
         }
@@ -37,7 +37,7 @@ public class FlexibleFragmentPagerAdaper extends FragmentPagerAdapter {
 
     @Override
     public int getCount() {
-        return 3;
+        return 2;
     }
 
     @Override

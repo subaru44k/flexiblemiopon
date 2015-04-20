@@ -143,7 +143,7 @@ public class PacketLogFragment extends Fragment {
         r.setLineWidth(5);
         r.setPointStyle(PointStyle.CIRCLE);
         XYSeriesRenderer r2 = new XYSeriesRenderer();
-        r2.setColor(getResources().getColor(R.color.bright_foreground_disabled_material_light));
+        r2.setColor(Color.BLACK);
         r2.setLineWidth(5);
         r2.setPointStyle(PointStyle.CIRCLE);
 

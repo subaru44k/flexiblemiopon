@@ -1,6 +1,9 @@
 package com.subaru.flexiblemiopon.view.button;
 
 import android.content.Context;
+import android.content.res.Resources;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.support.v7.widget.CardView;
 import android.util.AttributeSet;
@@ -57,9 +60,13 @@ public class SettingButton extends LinearLayout implements Component {
     @Override
     public void setChecked(boolean isClicked) {
         if (isClicked) {
-            mImageView.setBackgroundColor(Color.RED);
+            Resources r = getResources();
+            Bitmap bmp = BitmapFactory.decodeResource(r, R.drawable.checked_checkbox);
+            mImageView.setImageBitmap(bmp);
         } else {
-            mImageView.setBackgroundColor(Color.BLUE);
+            Resources r = getResources();
+            Bitmap bmp = BitmapFactory.decodeResource(r, R.drawable.unchecked_checkbox);
+            mImageView.setImageBitmap(bmp);
         }
     }
 

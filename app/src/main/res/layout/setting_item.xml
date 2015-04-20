@@ -9,8 +9,8 @@
         android:id="@+id/card_view"
         android:layout_width="match_parent"
         android:layout_height="80dp"
-        card_view:cardElevation="2dp"
-        card_view:cardCornerRadius="6dp"
+        card_view:cardElevation="3dp"
+        card_view:cardCornerRadius="2dp"
         android:layout_gravity="center"
         android:layout_margin="10dp"
         >
@@ -20,17 +20,21 @@
             android:layout_height="fill_parent">
             <ImageView
                 android:id="@+id/setting_icon"
-                android:layout_width="wrap_content"
+                android:layout_width="50dp"
                 android:layout_height="match_parent"
-                android:src="@drawable/common_signin_btn_icon_light"
+                android:src="@drawable/checked_checkbox"
                 android:layout_centerVertical="true"
-                android:layout_marginStart="15dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginBottom="10dp"
+                android:layout_marginLeft="10dp"
                 />
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_centerVertical="true"
                 android:id="@+id/text_setting"
+                android:textSize="16dp"
+                android:textColor="@android:color/black"
                 android:text="aaa"
                 android:ellipsize="end"
                 android:singleLine="false"

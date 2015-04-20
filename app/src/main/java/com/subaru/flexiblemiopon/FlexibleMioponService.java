@@ -330,8 +330,8 @@ public class FlexibleMioponService extends Service {
         NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(getApplicationContext());
         notificationBuilder.setContentIntent(pendingIntent);
         notificationBuilder.setTicker("ticker");
-        notificationBuilder.setContentTitle("title");
-        notificationBuilder.setContentText("text");
+        notificationBuilder.setContentTitle("FlexibleMiopon");
+        notificationBuilder.setContentText("Change coupon based on screen status");
         notificationBuilder.setSmallIcon(android.R.drawable.ic_dialog_info);
 
         startForeground(R.string.app_name, notificationBuilder.build());

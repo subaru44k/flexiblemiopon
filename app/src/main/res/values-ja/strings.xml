@@ -3,11 +3,11 @@
     <string name="app_name">FlexibleMiopon</string>
     <string name="switch_high_speed" translatable="false">クーポン使用</string>
     <string name="switch_notification_bar">通知バーに常駐</string>
-    <string name="switch_change_basedon_screen">画面消灯に連動してクーポンOFF/ON</string>
+    <string name="switch_change_basedon_screen">画面消灯時にクーポンOFF</string>
     <string name="data_consumption">データ使用量</string>
     <string name="legend_with_coupon">クーポンON</string>
     <string name="legend_without_coupon">クーポンOFF</string>
-    <string name="switch_auto_start">電源ON時にアプリを自動起動</string>
+    <string name="switch_auto_start">アプリの自動起動</string>
     <string name="switch_data_limit">短時間使用で警告</string>
     <string name="switch_data_limit_per_day">1日の使用量制限</string>
     <string name="graph_packet_usage">パケット使用量</string>
