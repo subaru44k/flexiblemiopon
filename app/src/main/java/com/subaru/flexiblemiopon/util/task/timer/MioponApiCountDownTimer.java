@@ -16,9 +16,6 @@ public class MioponApiCountDownTimer implements MioponCountDownTimer {
 
     private long mRemainingWaitTimeMills;
     private int mRemainingRequestNum;
-    private int mRequestNum;
-    private long mWaitTimeMills;
-    private long mCountDownInterval;
     private SimpleTimer mTimer;
 
     public MioponApiCountDownTimer(long millisInFuture, int requestNum) {
@@ -29,10 +26,6 @@ public class MioponApiCountDownTimer implements MioponCountDownTimer {
         initializeInternalTimer(millisInFuture, countDownInterval);
 
         mRemainingWaitTimeMills = millisInFuture;
-        mWaitTimeMills = millisInFuture;
-        mCountDownInterval = countDownInterval;
-        mRemainingRequestNum = requestNum;
-        mRequestNum = requestNum;
     }
 
     private void initializeInternalTimer(final long millisInFuture, final long countDownInterval) {
@@ -59,7 +52,7 @@ public class MioponApiCountDownTimer implements MioponCountDownTimer {
     }
 
     public void decrementRequestNum() {
-        mRemainingRequestNum--;
+        mRemainingRequestNum -= 1;
     }
 
     public long getRemainingWaitTimeMillis() {

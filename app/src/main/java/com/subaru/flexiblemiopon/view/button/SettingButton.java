@@ -5,6 +5,7 @@ import android.graphics.Color;
 import android.support.v7.widget.CardView;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -19,12 +20,14 @@ public class SettingButton extends LinearLayout implements Component {
     private String mComponentName;
     private Mediator mMediator;
     private CardView mCardView;
+    private ImageView mImageView;
     private TextView mTextView;
 
     public SettingButton(Context context, AttributeSet attrs) {
         super(context, attrs);
         LayoutInflater.from(context).inflate(R.layout.setting_item, this);
         mCardView = (CardView) findViewById(R.id.card_view);
+        mImageView = (ImageView) findViewById(R.id.setting_icon);
         mTextView = (TextView) findViewById(R.id.text_setting);
     }
 
@@ -54,9 +57,9 @@ public class SettingButton extends LinearLayout implements Component {
     @Override
     public void setChecked(boolean isClicked) {
         if (isClicked) {
-            mCardView.setCardBackgroundColor(Color.parseColor("#F072b6FF"));
+            mImageView.setBackgroundColor(Color.RED);
         } else {
-            mCardView.setCardBackgroundColor(Color.parseColor("#F0DDDDDD"));
+            mImageView.setBackgroundColor(Color.BLUE);
         }
     }
 

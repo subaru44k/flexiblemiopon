@@ -18,7 +18,7 @@ public class TimeOptimizedTaskManager implements TaskManager {
     }
 
     private void initializePacketLogCheckTimer() {
-        setPacketLogCheckTimerWithChallanges(4);
+        setPacketLogCheckTimerWithChallanges(5);
     }
 
     private void setPacketLogCheckTimerWithChallanges(int challangeNum) {
@@ -27,7 +27,7 @@ public class TimeOptimizedTaskManager implements TaskManager {
     }
 
     private void initializeCouponInfoTimer() {
-        setCouponInfoTimerWithChallanges(4);
+        setCouponInfoTimerWithChallanges(5);
     }
 
     private void setCouponInfoTimerWithChallanges(int challangeNum) {
@@ -56,7 +56,9 @@ public class TimeOptimizedTaskManager implements TaskManager {
 
     @Override
     public void notifyCouponChangeInvoked() {
-        initializeCouponChangeTimer();
+        if (mRemainingCouponChangeTimer instanceof NullCountDownTimer) {
+            initializeCouponChangeTimer();
+        }
     }
 
     @Override
