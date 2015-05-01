@@ -183,6 +183,11 @@ public class FlexibleMioponService extends Service {
                 // show toast or something?
                 FlexibleMioponToast.showToast("coupon changed successfully");
                 mMediator.setChecked(getString(R.string.switch_high_speed), isCouponUse);
+
+                if (mMediator.isChecked(getString(R.string.switch_change_basedon_screen))) {
+                    // if notification is showing, internal text should be changed
+                    toForegroundService();
+                }
             }
 
             @Override
@@ -324,14 +329,18 @@ public class FlexibleMioponService extends Service {
 
     public void toForegroundService() {
 
-        Intent notificationIntent = new Intent(this, FlexibleMioponService.class);
+        Intent notificationIntent = new Intent(this, FlexibleMioponActivity.class);
         PendingIntent pendingIntent = PendingIntent.getService(this, 0, notificationIntent, 0);
 
         NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(getApplicationContext());
         notificationBuilder.setContentIntent(pendingIntent);
         notificationBuilder.setTicker("ticker");
         notificationBuilder.setContentTitle("FlexibleMiopon");
-        notificationBuilder.setContentText("Change coupon based on screen status");
+        if (mMediator.isChecked(getString(R.string.switch_high_speed))) {
+            notificationBuilder.setContentText("Coupon is On");
+        } else {
+            notificationBuilder.setContentText("Coupon is Off");
+        }
         notificationBuilder.setSmallIcon(android.R.drawable.ic_dialog_info);
 
         startForeground(R.string.app_name, notificationBuilder.build());
