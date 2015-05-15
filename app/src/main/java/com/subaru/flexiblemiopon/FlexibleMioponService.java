@@ -334,7 +334,7 @@ public class FlexibleMioponService extends Service {
 
         NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(getApplicationContext());
         notificationBuilder.setContentIntent(pendingIntent);
-        notificationBuilder.setTicker("ticker");
+        notificationBuilder.setTicker("FlexibleMiopon");
         notificationBuilder.setContentTitle("FlexibleMiopon");
         if (mMediator.isChecked(getString(R.string.switch_high_speed))) {
             notificationBuilder.setContentText("Coupon is On");
