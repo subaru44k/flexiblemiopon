@@ -341,7 +341,7 @@ public class FlexibleMioponService extends Service {
         } else {
             notificationBuilder.setContentText("Coupon is Off");
         }
-        notificationBuilder.setSmallIcon(android.R.drawable.ic_dialog_info);
+        notificationBuilder.setSmallIcon(R.drawable.notification);
 
         startForeground(R.string.app_name, notificationBuilder.build());
     }

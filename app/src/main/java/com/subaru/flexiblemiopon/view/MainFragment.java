@@ -1,6 +1,8 @@
 package com.subaru.flexiblemiopon.view;
 
 import android.app.Activity;
+import android.content.res.Configuration;
+import android.content.res.Resources;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -82,7 +84,19 @@ public class MainFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_main, container, false);
 
         mRecyclerView = (RecyclerView) view.findViewById(R.id.recycler_view);
-        GridLayoutManager layoutManager = new GridLayoutManager(getActivity(), 1);
+
+        Resources r = getActivity().getResources();
+        Configuration configuration = r.getConfiguration();
+
+        GridLayoutManager layoutManager;
+        if (configuration.smallestScreenWidthDp < 600) {
+            // phone
+            layoutManager = new GridLayoutManager(getActivity(), 1);
+        } else {
+            // tablet
+            layoutManager = new GridLayoutManager(getActivity(), 2);
+        }
+
         mRecyclerView.setLayoutManager(layoutManager);
 
         List<Integer> settingIdList = SettingItems.settingIdList;
